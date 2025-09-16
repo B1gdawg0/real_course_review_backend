@@ -9,6 +9,7 @@ type CourseShortResponse struct {
 	Credit      int     `json:"credit"`
 	ReviewCount int     `json:"review_count"`
 	Rate        RatingResponse `json:"rating"`
+	AvgRate     float64             `json:"avg_rating_score"`
 	Score       float64 `json:"score"`
 }
 
