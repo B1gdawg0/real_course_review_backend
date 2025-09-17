@@ -75,7 +75,8 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
 		}
 	}
 
-	dto.Rate = utils.ParseRate(review.Rate)
+	// TODO: check here again. Gu random update this shit (Avg)
+	dto.Rate, dto.AvgRate = utils.ParseRate(review.Rate)
 
 	return dto
 }

@@ -29,8 +29,7 @@ func (c *courseUseCase) GetAll() ([]dtos.CourseShortResponse, error) {
 		if err != nil {
 			return nil, err
 		}
-		dtos[i].Rate = utils.ParseRate(entity.Rate)
-		dtos[i].AvgRate = 4.0
+		dtos[i].Rate, dtos[i].AvgRate = utils.ParseRate(entity.Rate)
 	}
 
 	sort.Slice(dtos, func(i, j int) bool {
@@ -52,8 +51,7 @@ func (c *courseUseCase) GetCourseById(id string) (*dtos.CourseFullResponse, erro
 		return nil, err
 	}
 
-	dtos.Rate = utils.ParseRate(entity.Rate)
-	dtos.AvgRate = 4.0
+	dtos.Rate, dtos.AvgRate = utils.ParseRate(entity.Rate)
 
 	return &dtos, nil
 }

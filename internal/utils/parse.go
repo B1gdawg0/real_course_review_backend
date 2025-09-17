@@ -8,7 +8,7 @@ import (
 	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
 )
 
-func ParseRate(rateStr string) dtos.RatingResponse {
+func ParseRate(rateStr string) (dtos.RatingResponse, float64) {
 	parts := strings.Split(rateStr, ",")
 	rating := dtos.RatingResponse{}
 
@@ -24,5 +24,5 @@ func ParseRate(rateStr string) dtos.RatingResponse {
 		}
 	}
 
-	return rating
+	return rating, (rating.Easiness+rating.Happiness+rating.Quality)/3
 }
