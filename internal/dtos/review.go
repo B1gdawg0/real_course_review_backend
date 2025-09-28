@@ -12,6 +12,7 @@ type ReviewFullResponse struct {
 	DownCount   int                 `json:"down_count"`
 	ReportCount int                 `json:"report_count"`
 	IsAnonymous bool                `json:"is_anonymous"`
+	Tags        []TagResponse      `json:"tags"`
 	User        *UserShortResponse  `json:"user,omitempty"`
 	Rate  		RatingResponse    	`json:"rating"`
 	CreatedAt   time.Time           `json:"created_at"`

@@ -14,6 +14,7 @@ type Course struct {
 	Score 		float64 `gorm:"column:score;default:0"`
 
 	Professors []Professor `gorm:"many2many:course_professors;"`
+	Tags        []Tag       `gorm:"many2many:course_tags;"`
 	
 	CreatedAt time.Time
 	UpdatedAt time.Time

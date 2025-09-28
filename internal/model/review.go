@@ -21,7 +21,8 @@ type Review struct {
 	User       User       `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Course      Course      `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Votes      []Vote     `gorm:"foreignKey:ReviewID"`
-	Rate string   		  `gorm:"column:rate"`
+	Rate	    string   		  `gorm:"column:rate"`
+	Tags        []Tag     `gorm:"many2many:review_tags;"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

@@ -17,6 +17,7 @@ var ALL_SCHEMA = []interface{}{
 	// &Thread{},
 	// &Comment{},
 	&SystemConfig{},
+	&Tag{},
 }
 
 type Category int

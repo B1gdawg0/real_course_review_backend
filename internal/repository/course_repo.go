@@ -16,13 +16,13 @@ func NewClassRepository(db *gorm.DB) CourseRepository {
 }
 
 func (c *courseRepo) GetAll() ([]m.Course, error) {
-	var courses []m.Course
-	err := c.db.Find(&courses).Error
-	return courses, err
+    var courses []m.Course
+    err := c.db.Preload("Tags").Find(&courses).Error
+    return courses, err
 }
 
 func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
 	var course m.Course
-	err := c.db.Preload("Professors").Where("id = ?", id).First(&course).Error
+	err := c.db.Preload("Tags").Preload("Professors").Where("id = ?", id).First(&course).Error
 	return &course, err
 }

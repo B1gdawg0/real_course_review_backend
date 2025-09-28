@@ -18,6 +18,7 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 func (r *reviewRepo) GetReviewsByCourseId(id string, limit, offset int) ([]m.Review, error) {
 	var reviews []m.Review
 	err := r.db.
+		Preload("Tags").
 		Preload("User").
 		Preload("Votes").
 		Where("course_id = ?", id).
@@ -31,6 +32,7 @@ func (r *reviewRepo) GetReviewsByCourseId(id string, limit, offset int) ([]m.Rev
 func (r *reviewRepo) GetReviewsByUserId(id string, limit, offset int) ([]m.Review, error) {
 	var reviews []m.Review
 	err := r.db.
+		Preload("Tags").
 		Preload("User").
 		Preload("Votes").
 		Where("user_id = ?", id).

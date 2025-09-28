@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 
@@ -89,75 +90,157 @@ func Seed(db *gorm.DB) {
 		db.Where("email = ?", "john.smith@university.edu").First(&john)
 		db.Where("email = ?", "emily.johnson@university.edu").First(&emily)
 		db.Where("email = ?", "michael.brown@university.edu").First(&michael)
-
+		
 		courses := []m.Course{
 			{
-				Name:        "Database Systems",
+				Name: "Database Systems",
 				Description: "Advanced concepts in relational and NoSQL databases.",
-				Semester:    "Fall 2025",
-				Code:        "CS303",
-				Credit:      3,
+				Semester: "Fall 2025",
+				Code: "CS303",
+				Credit: 3,
 				ReviewCount: 0,
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{john},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				Rate: "0",
+				Score: 0.0,
+				Professors: []m.Professor{john},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			},
 			{
-				Name:        "Introduction to Machine Learning",
+				Name: "Introduction to Machine Learning",
 				Description: "Supervised and unsupervised learning algorithms.",
-				Semester:    "Spring 2026",
-				Code:        "CS410",
-				Credit:      4,
+				Semester: "Spring 2026",
+				Code: "CS410",
+				Credit: 4,
 				ReviewCount: 0,
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{emily},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				Rate: "0",
+				Score: 0.0,
+				Professors: []m.Professor{emily},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			},
 			{
-				Name:        "Software Engineering",
+				Name: "Software Engineering",
 				Description: "Principles and practices of software development.",
-				Semester:    "Fall 2025",
-				Code:        "CS350",
-				Credit:      3,
+				Semester: "Fall 2025",
+				Code: "CS350",
+				Credit: 3,
 				ReviewCount: 0,
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{michael},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				Rate: "0",
+				Score: 0.0,
+				Professors: []m.Professor{michael},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			},
 			{
-				Name:        "Data Structures and Algorithms",
+				Name: "Data Structures and Algorithms",
 				Description: "Fundamental data structures and algorithm analysis.",
-				Semester:    "Spring 2026",
-				Code:        "CS201",
-				Credit:      4,
+				Semester: "Spring 2026",
+				Code: "CS201",
+				Credit: 4,
 				ReviewCount: 0,
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{john, michael},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				Rate: "0",
+				Score: 0.0,
+				Professors: []m.Professor{john, michael},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			},
 			{
-				Name:        "Computer Networks",
+				Name: "Computer Networks",
 				Description: "Network protocols, architecture, and security.",
-				Semester:    "Fall 2025",
-				Code:        "CS420",
-				Credit:      3,
+				Semester: "Fall 2025",
+				Code: "CS420",
+				Credit: 3,
 				ReviewCount: 0,
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{emily, michael},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
+				Rate: "0",
+				Score: 0.0,
+				Professors: []m.Professor{emily, michael},
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
 			},
 		}
 		db.Create(&courses)
+	}
+
+	// --- Centralized Tags ---
+	var tagCount int64
+	db.Model(&m.Tag{}).Count(&tagCount)
+	if tagCount == 0 {
+		// Create unique tags for both courses and reviews
+		tagNames := []string{
+			// Course/Professor related tags
+			"Fun", "Hard", "Helpful", "Strict", "Knowledgeable", "Friendly", 
+			"Clear", "Inspiring", "Fair", "Engaging",
+			// Review specific tags
+			"Easy", "Difficult", "Boring", "Interesting", "Time-consuming", 
+			"Rewarding", "Practical", "Theoretical", "Group Work", "Individual",
+			"Good Textbook", "Poor Textbook", "Online Resources", "Attendance Required",
+			"Pop Quizzes", "Final Project", "Midterm Heavy", "Participation Matters",
+			"Math Heavy", "Coding Intensive", "Writing Intensive", "Lab Work",
+			"Fast Paced", "Well Organized", "Confusing", "Outdated Material",
+		}
+		
+		var tags []m.Tag
+		for _, tagName := range tagNames {
+			tags = append(tags, m.Tag{
+				Name: tagName,
+				CreatedAt: time.Now(),
+				UpdatedAt: time.Now(),
+			})
+		}
+		
+		// Create all unique tags
+		db.Create(&tags)
+	}
+
+	// --- Assign Tags to Courses ---
+	var courseTagCount int64
+	db.Model(&m.CourseTag{}).Count(&courseTagCount)
+	if courseTagCount == 0 {
+		// Get all courses and all tags
+		var courses []m.Course
+		var tags []m.Tag
+		db.Find(&courses)
+		db.Find(&tags)
+		
+		if len(courses) > 0 && len(tags) > 0 {
+			// Create course-tag relationships
+			for _, course := range courses {
+				// Filter tags appropriate for courses (professor/course characteristics)
+				courseAppropriateTagNames := []string{
+					"Fun", "Hard", "Helpful", "Strict", "Knowledgeable", 
+					"Friendly", "Clear", "Inspiring", "Fair", "Engaging",
+				}
+				
+				var courseAppropriateTags []m.Tag
+				for _, tag := range tags {
+					for _, appropriateName := range courseAppropriateTagNames {
+						if tag.Name == appropriateName {
+							courseAppropriateTags = append(courseAppropriateTags, tag)
+							break
+						}
+					}
+				}
+				
+				// Shuffle and assign 1-3 random appropriate tags
+				shuffledTags := make([]m.Tag, len(courseAppropriateTags))
+				copy(shuffledTags, courseAppropriateTags)
+				rand.Shuffle(len(shuffledTags), func(i, j int) { 
+					shuffledTags[i], shuffledTags[j] = shuffledTags[j], shuffledTags[i] 
+				})
+				
+				numTags := 1 + rand.Intn(3)
+				if numTags > len(shuffledTags) {
+					numTags = len(shuffledTags)
+				}
+				selectedTags := shuffledTags[:numTags]
+				
+				// Use GORM's Association to create the many-to-many relationship
+				err := db.Model(&course).Association("Tags").Append(selectedTags)
+				if err != nil {
+					log.Printf("Error assigning tags to course %s: %v", course.Name, err)
+				}
+			}
+		}
 	}
 
 	// --- Reviews ---
@@ -170,7 +253,7 @@ func Seed(db *gorm.DB) {
 		db.Find(&users)
 		db.Find(&courses)
 
-		// Create 10 reviews
+		// Create 10 reviews (without Tags field in struct)
 		reviews := []m.Review{
 			{
 				UserID:      users[0].ID, // Alice
@@ -279,6 +362,89 @@ func Seed(db *gorm.DB) {
 			fmt.Printf("Error creating reviews: %v\n", result.Error)
 		} else {
 			fmt.Printf("Created %d reviews\n", len(reviews))
+		}
+	}
+
+	// --- Assign Tags to Reviews ---
+	var reviewTagCount int64
+	db.Model(&m.ReviewTag{}).Count(&reviewTagCount)
+	if reviewTagCount == 0 {
+		// Get all reviews and all tags
+		var reviews []m.Review
+		var tags []m.Tag
+		db.Find(&reviews)
+		db.Find(&tags)
+		
+		if len(reviews) > 0 && len(tags) > 0 {
+			// Define review-appropriate tag mappings based on review content
+			reviewTagMappings := map[int][]string{
+				0: {"Clear", "Fair", "Practical"},                    // Database Systems - Alice
+				1: {"Fast Paced", "Time-consuming", "Interesting"},   // Database Systems - Bob
+				2: {"Helpful", "Knowledgeable", "Rewarding"},         // Machine Learning - Alice  
+				3: {"Math Heavy", "Time-consuming", "Difficult"},     // Machine Learning - Bob
+				4: {"Practical", "Group Work", "Rewarding"},          // Software Engineering - Alice
+				5: {"Time-consuming", "Group Work", "Difficult"},     // Software Engineering - Bob
+				6: {"Fundamental", "Well Organized", "Clear"},        // Data Structures - Alice (note: you might need to add "Fundamental" to tags)
+				7: {"Challenging", "Coding Intensive", "Rewarding"},  // Data Structures - Bob (note: you might need to add "Challenging" to tags)
+				8: {"Theoretical", "Boring", "Outdated Material"},    // Computer Networks - Alice
+				9: {"Final Project", "Rewarding", "Well Organized"},  // Computer Networks - Bob
+			}
+			
+			// Create review-tag relationships
+			for i, review := range reviews {
+				if tagNames, exists := reviewTagMappings[i]; exists {
+					var selectedTags []m.Tag
+					
+					// Find matching tags
+					for _, tagName := range tagNames {
+						for _, tag := range tags {
+							if tag.Name == tagName {
+								selectedTags = append(selectedTags, tag)
+								break
+							}
+						}
+					}
+					
+					// If specific tags not found, assign random appropriate ones
+					if len(selectedTags) == 0 {
+						// Filter review-appropriate tags
+						reviewAppropriateTagNames := []string{
+							"Easy", "Difficult", "Interesting", "Time-consuming", "Rewarding",
+							"Practical", "Theoretical", "Group Work", "Individual", "Final Project",
+							"Math Heavy", "Coding Intensive", "Fast Paced", "Well Organized",
+						}
+						
+						var reviewAppropriateTags []m.Tag
+						for _, tag := range tags {
+							for _, appropriateName := range reviewAppropriateTagNames {
+								if tag.Name == appropriateName {
+									reviewAppropriateTags = append(reviewAppropriateTags, tag)
+									break
+								}
+							}
+						}
+						
+						// Shuffle and select 2-3 random tags
+						shuffledTags := make([]m.Tag, len(reviewAppropriateTags))
+						copy(shuffledTags, reviewAppropriateTags)
+						rand.Shuffle(len(shuffledTags), func(i, j int) {
+							shuffledTags[i], shuffledTags[j] = shuffledTags[j], shuffledTags[i]
+						})
+						
+						numTags := 2 + rand.Intn(2) // 2-3 tags
+						if numTags > len(shuffledTags) {
+							numTags = len(shuffledTags)
+						}
+						selectedTags = shuffledTags[:numTags]
+					}
+					
+					// Use GORM's Association to create the many-to-many relationship
+					err := db.Model(&review).Association("Tags").Append(selectedTags)
+					if err != nil {
+						log.Printf("Error assigning tags to review %d: %v", i, err)
+					}
+				}
+			}
 		}
 	}
 
