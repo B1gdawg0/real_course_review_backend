@@ -1,11 +1,13 @@
 package usecase
 
 import (
-    "math"
-    "github.com/B1gdawg0/real_course_review_backend/internal/dtos"
-    m "github.com/B1gdawg0/real_course_review_backend/internal/model"
-    repo "github.com/B1gdawg0/real_course_review_backend/internal/repository"
-    "github.com/B1gdawg0/real_course_review_backend/internal/utils"
+	"fmt"
+	"math"
+
+	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
+	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
+	repo "github.com/B1gdawg0/real_course_review_backend/internal/repository"
+	"github.com/B1gdawg0/real_course_review_backend/internal/utils"
 )
 
 type reviewUseCase struct {
@@ -37,6 +39,29 @@ func (r *reviewUseCase) GetReviewsByUserID(id string, page, size int) ([]dtos.Re
         "user",
     )
 }
+
+func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string) (*dtos.ReviewFullResponse, error) {
+    var tags []m.Tag
+    for _, t := range req.Tags {
+        tags = append(tags, m.Tag{Name: t})
+    }
+
+    review := &m.Review{
+        UserID:      userID,
+        CourseID:    req.CourseID,
+        Description: req.Comment,
+        Rate:        fmt.Sprintf("%f,%f,%f",req.Rate.Happiness,req.Rate.Easiness,req.Rate.Quality),
+        Tags:        tags,
+    }
+
+    if err := r.repo.CreateReview(review); err != nil {
+        return nil, err
+    }
+
+    dto := r.mapReviewToDTO(*review)
+    return &dto, nil
+}
+
 
 // ------------------ Helper Functions ------------------
 

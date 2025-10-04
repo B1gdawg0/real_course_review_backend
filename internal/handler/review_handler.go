@@ -48,3 +48,20 @@ func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 		TotalPages: totalPages,
 	})
 }
+
+func (h *ReviewHandler) CreateReview(c *fiber.Ctx) error {
+	var req dtos.CreateReviewRequest
+	var err error
+
+	if err = c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	if req.CourseID == "" || req.ProfessorID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "missing required fields")
+	}
+
+    reviewDTO, err := h.rc.CreateReview(req, req.User)
+
+    return dtos.Respond(c,reviewDTO, err)
+}

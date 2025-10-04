@@ -48,3 +48,19 @@ func (r *reviewRepo) CountReviewsByID(id string, section string) (int64, error) 
 	err := r.db.Model(&m.Review{}).Where(section+"_id = ?", id).Count(&count).Error
 	return count, err
 }
+
+func (r *reviewRepo) CreateReview(review *m.Review) error {
+    return r.db.Transaction(func(tx *gorm.DB) error {
+        if err := tx.Create(review).Error; err != nil {
+            return err
+        }
+
+        if len(review.Tags) > 0 {
+            if err := tx.Model(review).Association("Tags").Replace(review.Tags); err != nil {
+                return err
+            }
+        }
+
+        return nil
+    })
+}

@@ -24,4 +24,5 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB) {
 
 	review := api.Group("/review")
 	review.Get("/:filterType/:id", reviewHDL.GetReviews)
+	review.Post("", reviewHDL.CreateReview)
 }

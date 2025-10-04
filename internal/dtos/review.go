@@ -18,3 +18,12 @@ type ReviewFullResponse struct {
 	CreatedAt   time.Time           `json:"created_at"`
 	UpdatedAt   time.Time           `json:"updated_at"`
 }
+
+type CreateReviewRequest struct {
+    CourseID    string          `json:"course"`
+	Comment     string          `json:"comment"`
+	Rate        RatingResponse  `json:"rating"`
+	Tags        []string       `json:"tag"`
+	ProfessorID string          `json:"professor"`
+	User 	    string 			`json:"user"`
+}

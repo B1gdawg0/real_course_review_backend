@@ -177,6 +177,7 @@ func Seed(db *gorm.DB) {
 			"Pop Quizzes", "Final Project", "Midterm Heavy", "Participation Matters",
 			"Math Heavy", "Coding Intensive", "Writing Intensive", "Lab Work",
 			"Fast Paced", "Well Organized", "Confusing", "Outdated Material",
+			"Fundamental", "Challenging", // Added missing tags
 		}
 		
 		var tags []m.Tag
@@ -192,7 +193,7 @@ func Seed(db *gorm.DB) {
 		db.Create(&tags)
 	}
 
-	// --- Assign Tags to Courses ---
+	// --- Create Course-Tag Junction Records ---
 	var courseTagCount int64
 	db.Model(&m.CourseTag{}).Count(&courseTagCount)
 	if courseTagCount == 0 {
@@ -203,7 +204,7 @@ func Seed(db *gorm.DB) {
 		db.Find(&tags)
 		
 		if len(courses) > 0 && len(tags) > 0 {
-			// Create course-tag relationships
+			// Create course-tag relationships using junction table
 			for _, course := range courses {
 				// Filter tags appropriate for courses (professor/course characteristics)
 				courseAppropriateTagNames := []string{
@@ -234,10 +235,17 @@ func Seed(db *gorm.DB) {
 				}
 				selectedTags := shuffledTags[:numTags]
 				
-				// Use GORM's Association to create the many-to-many relationship
-				err := db.Model(&course).Association("Tags").Append(selectedTags)
-				if err != nil {
-					log.Printf("Error assigning tags to course %s: %v", course.Name, err)
+				// Create CourseTag junction records directly
+				for _, tag := range selectedTags {
+					courseTag := m.CourseTag{
+						CourseID: course.ID,
+						TagID:    tag.ID,
+					}
+					result := db.Create(&courseTag)
+					if result.Error != nil {
+						log.Printf("Error creating course-tag relationship for course %s and tag %s: %v", 
+							course.Name, tag.Name, result.Error)
+					}
 				}
 			}
 		}
@@ -253,7 +261,7 @@ func Seed(db *gorm.DB) {
 		db.Find(&users)
 		db.Find(&courses)
 
-		// Create 10 reviews (without Tags field in struct)
+		// Create 10 reviews
 		reviews := []m.Review{
 			{
 				UserID:      users[0].ID, // Alice
@@ -365,7 +373,7 @@ func Seed(db *gorm.DB) {
 		}
 	}
 
-	// --- Assign Tags to Reviews ---
+	// --- Create Review-Tag Junction Records ---
 	var reviewTagCount int64
 	db.Model(&m.ReviewTag{}).Count(&reviewTagCount)
 	if reviewTagCount == 0 {
@@ -384,64 +392,55 @@ func Seed(db *gorm.DB) {
 				3: {"Math Heavy", "Time-consuming", "Difficult"},     // Machine Learning - Bob
 				4: {"Practical", "Group Work", "Rewarding"},          // Software Engineering - Alice
 				5: {"Time-consuming", "Group Work", "Difficult"},     // Software Engineering - Bob
-				6: {"Fundamental", "Well Organized", "Clear"},        // Data Structures - Alice (note: you might need to add "Fundamental" to tags)
-				7: {"Challenging", "Coding Intensive", "Rewarding"},  // Data Structures - Bob (note: you might need to add "Challenging" to tags)
+				6: {"Fundamental", "Well Organized", "Clear"},        // Data Structures - Alice
+				7: {"Challenging", "Coding Intensive", "Rewarding"},  // Data Structures - Bob
 				8: {"Theoretical", "Boring", "Outdated Material"},    // Computer Networks - Alice
 				9: {"Final Project", "Rewarding", "Well Organized"},  // Computer Networks - Bob
 			}
 			
-			// Create review-tag relationships
+			// Create review-tag relationships using junction table
 			for i, review := range reviews {
+				var selectedTagNames []string
+				
 				if tagNames, exists := reviewTagMappings[i]; exists {
-					var selectedTags []m.Tag
-					
-					// Find matching tags
-					for _, tagName := range tagNames {
-						for _, tag := range tags {
-							if tag.Name == tagName {
-								selectedTags = append(selectedTags, tag)
-								break
-							}
-						}
-					}
-					
+					selectedTagNames = tagNames
+				} else {
 					// If specific tags not found, assign random appropriate ones
-					if len(selectedTags) == 0 {
-						// Filter review-appropriate tags
-						reviewAppropriateTagNames := []string{
-							"Easy", "Difficult", "Interesting", "Time-consuming", "Rewarding",
-							"Practical", "Theoretical", "Group Work", "Individual", "Final Project",
-							"Math Heavy", "Coding Intensive", "Fast Paced", "Well Organized",
-						}
-						
-						var reviewAppropriateTags []m.Tag
-						for _, tag := range tags {
-							for _, appropriateName := range reviewAppropriateTagNames {
-								if tag.Name == appropriateName {
-									reviewAppropriateTags = append(reviewAppropriateTags, tag)
-									break
-								}
-							}
-						}
-						
-						// Shuffle and select 2-3 random tags
-						shuffledTags := make([]m.Tag, len(reviewAppropriateTags))
-						copy(shuffledTags, reviewAppropriateTags)
-						rand.Shuffle(len(shuffledTags), func(i, j int) {
-							shuffledTags[i], shuffledTags[j] = shuffledTags[j], shuffledTags[i]
-						})
-						
-						numTags := 2 + rand.Intn(2) // 2-3 tags
-						if numTags > len(shuffledTags) {
-							numTags = len(shuffledTags)
-						}
-						selectedTags = shuffledTags[:numTags]
+					reviewAppropriateTagNames := []string{
+						"Easy", "Difficult", "Interesting", "Time-consuming", "Rewarding",
+						"Practical", "Theoretical", "Group Work", "Individual", "Final Project",
+						"Math Heavy", "Coding Intensive", "Fast Paced", "Well Organized",
 					}
 					
-					// Use GORM's Association to create the many-to-many relationship
-					err := db.Model(&review).Association("Tags").Append(selectedTags)
-					if err != nil {
-						log.Printf("Error assigning tags to review %d: %v", i, err)
+					// Shuffle and select 2-3 random tags
+					shuffled := make([]string, len(reviewAppropriateTagNames))
+					copy(shuffled, reviewAppropriateTagNames)
+					rand.Shuffle(len(shuffled), func(i, j int) {
+						shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
+					})
+					
+					numTags := 2 + rand.Intn(2) // 2-3 tags
+					if numTags > len(shuffled) {
+						numTags = len(shuffled)
+					}
+					selectedTagNames = shuffled[:numTags]
+				}
+				
+				// Find matching tags and create ReviewTag junction records
+				for _, tagName := range selectedTagNames {
+					for _, tag := range tags {
+						if tag.Name == tagName {
+							reviewTag := m.ReviewTag{
+								ReviewID: review.ID,
+								TagID:    tag.ID,
+							}
+							result := db.Create(&reviewTag)
+							if result.Error != nil {
+								log.Printf("Error creating review-tag relationship for review %d and tag %s: %v", 
+									i, tag.Name, result.Error)
+							}
+							break
+						}
 					}
 				}
 			}
