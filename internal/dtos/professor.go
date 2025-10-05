@@ -7,7 +7,7 @@ type ProfessorShortResponse struct{
 	Title          string  `json:"title,omitempty"`
 	ImageURL       string  `json:"image_url,omitempty"`
 	UniRoomAddress string  `json:"uni_room_address,omitempty"`
-	ReviewCount    int     `json:"review_count"`
+	// ReviewCount    int     `json:"review_count"`
 }
 
 type ProfessorFullResponse struct {

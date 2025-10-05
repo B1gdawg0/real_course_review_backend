@@ -53,6 +53,9 @@ func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string
 	}
 
 	course, err = utils.RecalculateCourseReview(course, &req)
+	if err != nil{
+		return nil, err
+	}
 
 	review := &m.Review{
         UserID:      userID,

@@ -15,6 +15,10 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB) {
 	courseUC := uc.NewCourseUseCase(courseRepo)
 	courseHDL := hdl.NewClassHandler(courseUC)
 
+	profRepo := repo.NewProfessorRepository(db)
+	profUC := uc.NewProfessorUseCase(profRepo)
+	profHDL := hdl.NewProfessorHandler(profUC)
+
 	reviewRepo := repo.NewReviewRepository(db)
 	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
 	reviewHDL := hdl.NewReviewHandler(reviewUC)
@@ -25,6 +29,9 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB) {
 
 	course := api.Group("/course")
 	course.Get("", courseHDL.GetAllOrOne)
+
+	prof := api.Group("/professor")
+	prof.Get("",profHDL.GetAllOrOne)
 
 	review := api.Group("/review")
 	review.Get("/:filterType/:id", reviewHDL.GetReviews)
