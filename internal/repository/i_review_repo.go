@@ -6,5 +6,5 @@ type ReviewRepository interface {
 	GetReviewsByCourseId(id string, limit, offset int) ([]m.Review, error)
 	GetReviewsByUserId(id string, limit, offset int) ([]m.Review, error)
 	CountReviewsByID(id string, section string) (int64, error)
-	CreateReview(review *m.Review) error
+	CreateReview(review *m.Review, course *m.Course) error
 }

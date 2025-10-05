@@ -39,6 +39,7 @@ func (c *courseUseCase) GetAll() ([]dtos.CourseShortResponse, error) {
         }
 
         res[i].Rate, res[i].AvgRate = utils.ParseRate(entity.Rate)
+		res[i].ReviewCount = utils.ParseReviewCount(entity.ReviewCount)
     }
 
 	sort.Slice(res, func(i, j int) bool {
@@ -61,6 +62,7 @@ func (c *courseUseCase) GetCourseById(id string) (*dtos.CourseFullResponse, erro
 	}
 
 	res.Rate, res.AvgRate = utils.ParseRate(entity.Rate)
+	res.ReviewCount = utils.ParseReviewCount(entity.ReviewCount)
 
 	return &res, nil
 }

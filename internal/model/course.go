@@ -9,7 +9,7 @@ type Course struct {
 	Semester    string  `gorm:"column:semester;not null"`
 	Code        string  `gorm:"column:code;uniqueIndex;not null"`
 	Credit      int     `gorm:"column:credit;not null"`
-	ReviewCount int     `gorm:"column:review_count;default:0"`
+	ReviewCount string  `gorm:"column:review_count;default:0"`
 	Rate        string `gorm:"column:rate;default:0"`
 	Score 		float64 `gorm:"column:score;default:0"`
 

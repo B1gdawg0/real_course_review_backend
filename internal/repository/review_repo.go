@@ -49,7 +49,7 @@ func (r *reviewRepo) CountReviewsByID(id string, section string) (int64, error) 
 	return count, err
 }
 
-func (r *reviewRepo) CreateReview(review *m.Review) error {
+func (r *reviewRepo) CreateReview(review *m.Review, course *m.Course) error {
     return r.db.Transaction(func(tx *gorm.DB) error {
         if err := tx.Create(review).Error; err != nil {
             return err
@@ -59,6 +59,16 @@ func (r *reviewRepo) CreateReview(review *m.Review) error {
             if err := tx.Model(review).Association("Tags").Replace(review.Tags); err != nil {
                 return err
             }
+        }
+
+		if len(review.Tags) > 0 {
+            if err := tx.Model(course).Association("Tags").Append(review.Tags); err != nil {
+                return err
+            }
+        }
+
+        if err := tx.Save(course).Error; err != nil {
+            return err
         }
 
         return nil

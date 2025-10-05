@@ -16,7 +16,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB) {
 	courseHDL := hdl.NewClassHandler(courseUC)
 
 	reviewRepo := repo.NewReviewRepository(db)
-	reviewUC := uc.NewReviewUseCase(reviewRepo)
+	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
 	reviewHDL := hdl.NewReviewHandler(reviewUC)
 
 	tagRepo := repo.NewTagRepository(db)

@@ -12,10 +12,11 @@ import (
 
 type reviewUseCase struct {
     repo repo.ReviewRepository
+	courseRepo repo.CourseRepository
 }
 
-func NewReviewUseCase(repo repo.ReviewRepository) ReviewUseCase {
-    return &reviewUseCase{repo: repo}
+func NewReviewUseCase(repo repo.ReviewRepository, courseRepo repo.CourseRepository) ReviewUseCase {
+    return &reviewUseCase{repo: repo, courseRepo: courseRepo}
 }
 
 func (r *reviewUseCase) GetReviewsByCourseID(id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
@@ -43,18 +44,25 @@ func (r *reviewUseCase) GetReviewsByUserID(id string, page, size int) ([]dtos.Re
 func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string) (*dtos.ReviewFullResponse, error) {
     var tags []m.Tag
     for _, t := range req.Tags {
-        tags = append(tags, m.Tag{Name: t})
+		tags = append(tags, m.Tag{ID: t})
     }
 
-    review := &m.Review{
+	course, err := r.courseRepo.GetCourseById(req.CourseID)
+	if err != nil{
+		return nil, err
+	}
+
+	course, err = utils.RecalculateCourseReview(course, &req)
+
+	review := &m.Review{
         UserID:      userID,
-        CourseID:    req.CourseID,
+        CourseID:    course.ID,
         Description: req.Comment,
         Rate:        fmt.Sprintf("%f,%f,%f",req.Rate.Happiness,req.Rate.Easiness,req.Rate.Quality),
         Tags:        tags,
     }
 
-    if err := r.repo.CreateReview(review); err != nil {
+    if err := r.repo.CreateReview(review, course); err != nil {
         return nil, err
     }
 

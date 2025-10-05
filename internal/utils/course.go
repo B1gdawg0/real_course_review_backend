@@ -1,0 +1,25 @@
+package utils
+
+import (
+	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
+	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
+)
+
+func RecalculateCourseReview(course *m.Course, req *dtos.CreateReviewRequest) (*m.Course, error) {
+	reviewCount := ParseReviewCount(course.ReviewCount)
+
+	reviewCount.Easiness++
+	reviewCount.Happiness++
+	reviewCount.Quality++
+
+	rate, _ := ParseRate(course.Rate)
+
+	rate.Easiness = ((rate.Easiness * float64(reviewCount.Easiness-1)) + req.Rate.Easiness) / float64(reviewCount.Easiness)
+	rate.Happiness = ((rate.Happiness * float64(reviewCount.Happiness-1)) + req.Rate.Happiness) / float64(reviewCount.Happiness)
+	rate.Quality = ((rate.Quality * float64(reviewCount.Quality-1)) + req.Rate.Quality) / float64(reviewCount.Quality)
+
+	course.ReviewCount = ReviewCountToString(reviewCount)
+	course.Rate = RateToString(rate)
+
+	return course, nil
+}

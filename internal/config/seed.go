@@ -6,7 +6,9 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
 	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
+	"github.com/B1gdawg0/real_course_review_backend/internal/utils"
 	"gorm.io/gorm"
 )
 
@@ -98,7 +100,7 @@ func Seed(db *gorm.DB) {
 				Semester: "Fall 2025",
 				Code: "CS303",
 				Credit: 3,
-				ReviewCount: 0,
+				ReviewCount: "0,0,0",
 				Rate: "0",
 				Score: 0.0,
 				Professors: []m.Professor{john},
@@ -111,7 +113,7 @@ func Seed(db *gorm.DB) {
 				Semester: "Spring 2026",
 				Code: "CS410",
 				Credit: 4,
-				ReviewCount: 0,
+				ReviewCount: "0,0,0",
 				Rate: "0",
 				Score: 0.0,
 				Professors: []m.Professor{emily},
@@ -124,7 +126,7 @@ func Seed(db *gorm.DB) {
 				Semester: "Fall 2025",
 				Code: "CS350",
 				Credit: 3,
-				ReviewCount: 0,
+				ReviewCount: "0,0,0",
 				Rate: "0",
 				Score: 0.0,
 				Professors: []m.Professor{michael},
@@ -137,7 +139,7 @@ func Seed(db *gorm.DB) {
 				Semester: "Spring 2026",
 				Code: "CS201",
 				Credit: 4,
-				ReviewCount: 0,
+				ReviewCount: "0,0,0",
 				Rate: "0",
 				Score: 0.0,
 				Professors: []m.Professor{john, michael},
@@ -150,7 +152,7 @@ func Seed(db *gorm.DB) {
 				Semester: "Fall 2025",
 				Code: "CS420",
 				Credit: 3,
-				ReviewCount: 0,
+				ReviewCount: "0,0,0",
 				Rate: "0",
 				Score: 0.0,
 				Professors: []m.Professor{emily, michael},
@@ -503,34 +505,46 @@ func Seed(db *gorm.DB) {
 		// Update course review counts and rates
 		var allCourses []m.Course
 		db.Find(&allCourses)
+
 		for _, course := range allCourses {
 			var courseReviews []m.Review
 			db.Where("course_id = ?", course.ID).Find(&courseReviews)
-			
-			if len(courseReviews) > 0 {
-				var rates []string
-				var totalScore float64
-				
-				for _, review := range courseReviews {
-					rates = append(rates, review.Rate)
-					totalScore += review.AvgRate
-				}
-				
-				avgScore := totalScore / float64(len(courseReviews))
-				rateString := ""
-				for i, rate := range rates {
-					if i > 0 {
-						rateString += ","
-					}
-					rateString += rate
-				}
-				
-				db.Model(&course).Updates(map[string]interface{}{
-					"review_count": len(courseReviews),
-					"rate":         rateString,
-					"score":        avgScore,
-				})
+
+			if len(courseReviews) == 0 {
+				continue
 			}
+
+			reviewCount := dtos.ReviewCountResponse{Happiness: 0, Easiness: 0, Quality: 0}
+			totalRate := dtos.RatingResponse{Happiness: 0, Easiness: 0, Quality: 0}
+			totalScore := 0.0
+
+			for _, review := range courseReviews {
+				reviewCount.Happiness++
+				reviewCount.Easiness++
+				reviewCount.Quality++
+
+				rate, _ := utils.ParseRate(review.Rate)
+				totalRate.Happiness += rate.Happiness
+				totalRate.Easiness += rate.Easiness
+				totalRate.Quality += rate.Quality
+
+				totalScore += review.AvgRate
+			}
+
+			numReviews := float64(len(courseReviews))
+			avgRate := dtos.RatingResponse{
+				Happiness: totalRate.Happiness / numReviews,
+				Easiness:  totalRate.Easiness / numReviews,
+				Quality:   totalRate.Quality / numReviews,
+			}
+
+			// Update course
+			db.Model(&course).Updates(map[string]interface{}{
+				"review_count": utils.ReviewCountToString(reviewCount),
+				"rate":         utils.RateToString(avgRate),
+				"score":        totalScore / numReviews,
+			})
 		}
+
 	}
 }
