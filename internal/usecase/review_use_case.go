@@ -63,6 +63,9 @@ func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string
         Description: req.Comment,
         Rate:        fmt.Sprintf("%f,%f,%f",req.Rate.Happiness,req.Rate.Easiness,req.Rate.Quality),
         Tags:        tags,
+		Grade:       req.Grade,
+		Year:        req.Year,
+		Sec:         req.Sec,
     }
 
     if err := r.repo.CreateReview(review, course); err != nil {
@@ -113,6 +116,9 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
         ReportCount: review.ReportCount,
         IsAnonymous: review.IsAnonymous,
         Tags:        r.mapTagsToDTO(review.Tags), // Updated to handle normalized tags
+		Grade:       review.Grade,
+		Year: 		 review.Year,
+		Sec:         review.Sec,
         CreatedAt:   review.CreatedAt,
         UpdatedAt:   review.UpdatedAt,
     }

@@ -12,7 +12,10 @@ type ReviewFullResponse struct {
 	DownCount   int                 `json:"down_count"`
 	ReportCount int                 `json:"report_count"`
 	IsAnonymous bool                `json:"is_anonymous"`
-	Tags        []TagResponse      `json:"tags"`
+	Grade       string				`json:"reviewer_grade"`
+	Year		string 				`json:"course_year"`
+	Sec			string 				`json:"section_id"`
+	Tags        []TagResponse       `json:"tags"`
 	User        *UserShortResponse  `json:"user,omitempty"`
 	Rate  		RatingResponse    	`json:"rating"`
 	CreatedAt   time.Time           `json:"created_at"`
@@ -25,5 +28,8 @@ type CreateReviewRequest struct {
 	Rate        RatingResponse  `json:"rating"`
 	Tags        []string       `json:"tag"`
 	ProfessorID string          `json:"professor"`
+	Grade       string			`json:"grade"`
+	Year		string 			`json:"year"`
+	Sec			string 			`json:"sec"`
 	User 	    string 			`json:"user"`
 }

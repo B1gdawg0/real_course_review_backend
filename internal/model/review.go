@@ -18,6 +18,11 @@ type Review struct {
 	ReportCount int `gorm:"default:0"`
 	IsAnonymous bool `gorm:"default:false"`
 
+	// sync with course (reference key) later
+	Grade       string			`gorm:"column:reviewer_grade"`
+	Year		string 			`gorm:"column:course_year"`
+	Sec			string 			`gorm:"column:section_id"`
+
 	User       User       `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Course      Course      `gorm:"foreignKey:CourseID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Votes      []Vote     `gorm:"foreignKey:ReviewID"`
