@@ -14,6 +14,7 @@ func Load() (*m.Config){
         DB_USER:    getEnv("DB_USER"),
         DB_PASSWORD:getEnv("DB_PASSWORD"),
         DB_NAME:    getEnv("DB_NAME"),
+		JWT_SECRET: getEnv("JWT_SECRET"),
     }
 }
 

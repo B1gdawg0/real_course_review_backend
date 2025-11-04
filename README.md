@@ -29,6 +29,7 @@ Setup
    DB_USER=postgres
    DB_PASSWORD=yourpassword
    DB_NAME=coursereview
+   JWT_SECRET=yoursecret
 
 3. Start the services using the setup script
 

@@ -23,7 +23,7 @@ func main() {
 		return c.SendString("OK")
 	})
 
-	config.RegisterRoutesV1(app, db)
+	config.RegisterRoutesV1(app, db, cfg)
 
 	log.Printf("Starting server on port %s...", cfg.PORT)
 	if err := app.Listen(":" + cfg.PORT); err != nil {
