@@ -2,6 +2,7 @@ package config
 
 import (
 	hdl "github.com/B1gdawg0/real_course_review_backend/internal/handler"
+	"github.com/B1gdawg0/real_course_review_backend/internal/middleware"
 	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
 	repo "github.com/B1gdawg0/real_course_review_backend/internal/repository"
 	uc "github.com/B1gdawg0/real_course_review_backend/internal/usecase"
@@ -12,6 +13,16 @@ import (
 
 func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	api := app.Group("/api/v1")
+
+	authRepo := repo.NewAuthRepository(db)
+	authUC := uc.NewAuthUsecase(authRepo, cfg.JWT_SECRET)
+	authHDL := hdl.NewAuthHandler(authUC)
+
+	auth := api.Group("/auth")
+	auth.Post("", authHDL.HandleAuth)
+
+	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
+	// -- after this line, jwt token required --
 
 	courseRepo := repo.NewClassRepository(db)
 	courseUC := uc.NewCourseUseCase(courseRepo)
@@ -28,13 +39,6 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	tagRepo := repo.NewTagRepository(db)
 	tagUC := uc.NewTagUseCase(tagRepo)
 	tagHDL := hdl.NewTagHandler(tagUC)
-
-	authRepo := repo.NewAuthRepository(db)
-	authUC := uc.NewAuthUsecase(authRepo, cfg.JWT_SECRET)
-	authHDL := hdl.NewAuthHandler(authUC)
-
-	auth := api.Group("/auth")
-	auth.Post("", authHDL.HandleAuth)
 
 	course := api.Group("/course")
 	course.Get("", courseHDL.GetAllOrOne)
