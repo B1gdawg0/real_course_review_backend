@@ -15,6 +15,15 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 	}
 }
 
+func (r *reviewRepo) VerifyReviewById (id string)(bool, error){
+	var count int64
+    err := r.db.Model(&m.Review{}).Where("id = ?", id).Count(&count).Error
+    if err != nil {
+        return false, err
+    }
+    return count > 0, nil
+}
+
 func (r *reviewRepo) GetReviewsByCourseId(id string, limit, offset int) ([]m.Review, error) {
 	var reviews []m.Review
 	err := r.db.

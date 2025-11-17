@@ -7,4 +7,5 @@ import (
 type AuthRepository interface {
 	GetUserByEmail(email string) (*m.User, error)
 	CreateUser(user *m.User) error
+	VerifyUserById(id string) (bool, error)
 }

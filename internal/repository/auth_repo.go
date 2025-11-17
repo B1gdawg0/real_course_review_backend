@@ -21,6 +21,15 @@ func (r *authRepository) GetUserByEmail(email string) (*m.User, error) {
 	return &user, nil
 }
 
+func (r *authRepository) VerifyUserById(id string) (bool, error) {
+    var count int64
+    err := r.db.Model(&m.User{}).Where("id = ?", id).Count(&count).Error
+    if err != nil {
+        return false, err
+    }
+    return count > 0, nil
+}
+
 func (r *authRepository) CreateUser(user *m.User) error {
 	return r.db.Create(user).Error
 }

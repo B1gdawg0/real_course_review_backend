@@ -21,8 +21,8 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	auth := api.Group("/auth")
 	auth.Post("", authHDL.HandleAuth)
 
-	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 	// -- after this line, jwt token required --
+	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 
 	courseRepo := repo.NewClassRepository(db)
 	courseUC := uc.NewCourseUseCase(courseRepo)
@@ -39,6 +39,13 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	tagRepo := repo.NewTagRepository(db)
 	tagUC := uc.NewTagUseCase(tagRepo)
 	tagHDL := hdl.NewTagHandler(tagUC)
+
+	voteRepo := repo.NewVoteRepository(db)
+	voteUC := uc.NewVoteUseCase(voteRepo, authRepo, reviewRepo)
+	voteHDL := hdl.NewVoteHandler(voteUC)
+
+	vote := api.Group("/vote")
+	vote.Post("", voteHDL.Vote)
 
 	course := api.Group("/course")
 	course.Get("", courseHDL.GetAllOrOne)
