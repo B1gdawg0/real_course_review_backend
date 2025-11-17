@@ -8,5 +8,5 @@ type VoteReviewRequest struct{
 type VoteShortReponse struct{
 	UpVote int `json:"upvote"`
 	DownVote int `json:"downvote"`
-	HasUserVoted bool `json:"hasUserVoted"`
+	HasUserVoted int `json:"hasUserVoted"`
 }

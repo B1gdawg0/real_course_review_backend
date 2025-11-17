@@ -134,7 +134,12 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
     dto.Votes = dtos.VoteShortReponse{
         UpVote:   review.UpCount,
         DownVote: review.DownCount,
-        HasUserVoted: review.UserVote != nil && *review.UserVote != 0,
+        HasUserVoted: func() int {
+			if review.UserVote == nil {
+				return 0
+			}
+			return *review.UserVote
+		}(),
     }
 
     dto.Rate, dto.AvgRate = utils.ParseRate(review.Rate)
