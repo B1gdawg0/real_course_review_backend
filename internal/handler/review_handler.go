@@ -21,6 +21,7 @@ func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 	id := c.Params("id")
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	size, _ := strconv.Atoi(c.Query("size", "10"))
+	userID, _ := c.Locals("userID").(string)
 
 	var data []dtos.ReviewFullResponse
 	var total int64
@@ -29,9 +30,9 @@ func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 
 	switch filterType {
 	case "c":
-		data, page, size, total, totalPages, err = h.rc.GetReviewsByCourseID(id, page, size)
-	case "u":
-		data, page, size, total, totalPages, err = h.rc.GetReviewsByUserID(id, page, size)
+		data, page, size, total, totalPages, err = h.rc.GetReviewsByCourseID(userID, id, page, size)
+	// case "u":
+	// 	data, page, size, total, totalPages, err = h.rc.GetReviewsByUserID(userID, page, size)
 	default:
 		return fiber.NewError(fiber.StatusBadRequest, "invalid filter type")
 	}
@@ -52,6 +53,7 @@ func (h *ReviewHandler) GetReviews(c *fiber.Ctx) error {
 func (h *ReviewHandler) CreateReview(c *fiber.Ctx) error {
 	var req dtos.CreateReviewRequest
 	var err error
+	userID, _ := c.Locals("userID").(string)
 
 	if err = c.BodyParser(&req); err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
@@ -61,7 +63,7 @@ func (h *ReviewHandler) CreateReview(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "missing required fields")
 	}
 
-    reviewDTO, err := h.rc.CreateReview(req, req.User)
+    reviewDTO, err := h.rc.CreateReview(req, userID)
 
     return dtos.Respond(c,reviewDTO, err)
 }

@@ -24,32 +24,45 @@ func (r *reviewRepo) VerifyReviewById (id string)(bool, error){
     return count > 0, nil
 }
 
-func (r *reviewRepo) GetReviewsByCourseId(id string, limit, offset int) ([]m.Review, error) {
-	var reviews []m.Review
-	err := r.db.
-		Preload("Tags").
-		Preload("User").
-		Preload("Votes").
-		Where("course_id = ?", id).
-		Limit(limit).
-		Offset(offset).
-		Find(&reviews).Error
-
-	return reviews, err
+func (r *reviewRepo) GetReviewsByCourseId(userid string, id string, limit, offset int) ([]m.Review, error) {
+    return r.getReviewsWithVotes("course_id", id, userid, limit, offset)
 }
 
-func (r *reviewRepo) GetReviewsByUserId(id string, limit, offset int) ([]m.Review, error) {
-	var reviews []m.Review
-	err := r.db.
-		Preload("Tags").
-		Preload("User").
-		Preload("Votes").
-		Where("user_id = ?", id).
-		Limit(limit).
-		Offset(offset).
-		Find(&reviews).Error
+// func (r *reviewRepo) GetReviewsByUserId(id string, limit, offset int) ([]m.Review, error) {
+//     return r.getReviewsWithVotes("user_id", id, "", limit, offset)
+// }
 
-	return reviews, err
+func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset int) ([]m.Review, error) {
+    var reviews []m.Review
+
+    query := r.db.
+        Preload("Tags").
+        Preload("User")
+
+    if userID != "" {
+        query = query.Select(`
+            reviews.*,
+            COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
+            COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count,
+            MAX(CASE WHEN votes.user_id = ? THEN votes.vote ELSE NULL END) AS user_vote
+        `, userID)
+    } else {
+        query = query.Select(`
+            reviews.*,
+            COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
+            COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count
+        `)
+    }
+
+    err := query.
+        Joins("LEFT JOIN votes ON votes.review_id = reviews.id").
+        Where("reviews."+field+" = ?", id).
+        Group("reviews.id").
+        Limit(limit).
+        Offset(offset).
+        Find(&reviews).Error
+
+    return reviews, err
 }
 
 func (r *reviewRepo) CountReviewsByID(id string, section string) (int64, error) {

@@ -19,8 +19,9 @@ func NewReviewUseCase(repo repo.ReviewRepository, courseRepo repo.CourseReposito
     return &reviewUseCase{repo: repo, courseRepo: courseRepo}
 }
 
-func (r *reviewUseCase) GetReviewsByCourseID(id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
+func (r *reviewUseCase) GetReviewsByCourseID(userid string,id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
     return r.getReviews(
+		userid,
         id,
         page,
         size,
@@ -30,16 +31,16 @@ func (r *reviewUseCase) GetReviewsByCourseID(id string, page, size int) ([]dtos.
     )
 }
 
-func (r *reviewUseCase) GetReviewsByUserID(id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
-    return r.getReviews(
-        id,
-        page,
-        size,
-        r.repo.GetReviewsByUserId,
-        r.repo.CountReviewsByID,
-        "user",
-    )
-}
+// func (r *reviewUseCase) GetReviewsByUserID(id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
+//     return r.getReviews(
+//         id,
+//         page,
+//         size,
+//         r.repo.GetReviewsByUserId,
+//         r.repo.CountReviewsByID,
+//         "user",
+//     )
+// }
 
 func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string) (*dtos.ReviewFullResponse, error) {
     var tags []m.Tag
@@ -130,7 +131,12 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
         }
     }
 
-    // Parse rate
+    dto.Votes = dtos.VoteShortReponse{
+        UpVote:   review.UpCount,
+        DownVote: review.DownCount,
+        HasUserVoted: review.UserVote != nil && *review.UserVote != 0,
+    }
+
     dto.Rate, dto.AvgRate = utils.ParseRate(review.Rate)
     return dto
 }
@@ -144,15 +150,16 @@ func (r *reviewUseCase) mapReviewsToDTOs(reviews []m.Review) []dtos.ReviewFullRe
 }
 
 func (r *reviewUseCase) getReviews(
+	userid string,
     id string,
     page, size int,
-    fetchFunc func(string, int, int) ([]m.Review, error),
+    fetchFunc func(string, string, int, int) ([]m.Review, error),
     countFunc func(string, string) (int64, error),
     entityType string,
 ) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
     page, size, offset := r.validatePagination(page, size)
 
-    reviews, err := fetchFunc(id, size, offset)
+    reviews, err := fetchFunc(userid, id, size, offset)
     if err != nil {
         return nil, 0, 0, 0, 0, err
     }
