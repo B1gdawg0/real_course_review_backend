@@ -16,21 +16,18 @@ func NewVoteUseCase(repo repo.VoteRepository, auth repo.AuthRepository, review r
 }
 
 func (v *voteUseCase) AddVoteToReview(userid string, reviewid string, vote int) error {
-    user, err := v.auth.VerifyUserById(userid)
+    userExists, err := v.auth.VerifyUserById(userid)
     if err != nil {
         return err
     }
-    
-    review, err := v.review.VerifyReviewById(reviewid)
-    if err != nil {
-        return err
-    }
-    
-    if !user {
+    if !userExists {
         return errors.New("user not found")
     }
-    
-    if !review {
+    reviewExists, err := v.review.VerifyReviewById(reviewid)
+    if err != nil {
+        return err
+    }
+    if !reviewExists {
         return errors.New("review not found")
     }
     
@@ -40,12 +37,10 @@ func (v *voteUseCase) AddVoteToReview(userid string, reviewid string, vote int) 
     }
     
     if existingVote != nil {
-        return errors.New("user has already voted on this review")
+        if existingVote.Vote == vote {
+            return errors.New("can't vote the same vote")
+        }
+        return v.repo.UpdateVote(userid, reviewid, vote)
     }
-    
-    if err := v.repo.AddVoteToReview(userid, reviewid, vote); err != nil {
-        return err
-    }
-    
-    return nil
+    return v.repo.AddVoteToReview(userid, reviewid, vote)
 }

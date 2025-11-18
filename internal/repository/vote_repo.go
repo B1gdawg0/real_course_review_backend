@@ -61,3 +61,9 @@ func (v *VoteRepo) GetVotesByReviewId(id string) (int, int, error) {
 
 	return result.Upvotes, result.Downvotes, nil
 }
+
+func (v *VoteRepo) UpdateVote(userid string, reviewid string, vote int) error {
+	return v.db.Model(&m.Vote{}).
+		Where("user_id = ? AND review_id = ?", userid, reviewid).
+		Update("vote", vote).Error
+}
