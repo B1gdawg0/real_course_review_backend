@@ -1,7 +1,7 @@
 package dtos
 
 type VoteReviewRequest struct{
-	ReviewID string `json:"review"`
+	ReviewID string `json:"review_id"`
 	Vote 	 int 	`json:"vote"`
 }
 
