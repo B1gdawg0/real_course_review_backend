@@ -7,4 +7,6 @@ import (
 type CourseRepository interface {
 	GetAll() ([]m.Course, error)
 	GetCourseById(id string) (*m.Course,error)
+	Search(q string, limit, offset int) ([]m.Course, error)
+    CountSearch(q string) (int64, error)
 }

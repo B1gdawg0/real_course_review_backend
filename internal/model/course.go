@@ -13,6 +13,8 @@ type Course struct {
 	Rate        string `gorm:"column:rate;default:0"`
 	Score 		float64 `gorm:"column:score;default:0"`
 
+	FTS         string  `gorm:"column:fts;type:tsvector;index:,type:gin"`
+
 	Professors []Professor `gorm:"many2many:course_professors;"`
 	Tags        []Tag       `gorm:"many2many:course_tags;"`
 	
