@@ -16,37 +16,32 @@ func NewClassHandler(cc uc.CourseUseCase) *CourseHandler{
 	return &CourseHandler{cc: cc}
 }
 
-func (ch *CourseHandler) GetAllOrOne(c *fiber.Ctx) error {
-	id := c.Query("id")
+func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
+    id := c.Query("id")
+    keyword := c.Query("q")
 
-	if id != "" {
-		data, err := ch.cc.GetCourseById(id)
-		return dtos.Respond(c, data, err)
-	}
-
-	data, err := ch.cc.GetAll()
-	return dtos.Respond(c, data, err)
-}
-
-func (ch *CourseHandler) Search(c *fiber.Ctx) error {
-    keyword := c.Query("q", "")
-    if keyword == "" {
-        return fiber.NewError(fiber.StatusBadRequest, "missing keyword")
+    if id != "" && keyword != "" {
+        return fiber.NewError(fiber.StatusBadRequest, "cannot use both 'id' and 'q' together")
     }
-    
-    page, _ := strconv.Atoi(c.Query("page", "1"))
-    size, _ := strconv.Atoi(c.Query("size", "10"))
-    
-    data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size)
-    
-    if err != nil {
+
+    if id != "" {
+        data, err := ch.cc.GetCourseById(id)
         return dtos.Respond(c, data, err)
     }
-    
-    return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
-        Page:       page,
-        PageSize:   size,
-        Total:      total,
-        TotalPages: totalPages,
-    })
+
+    if keyword != "" {
+        page, _ := strconv.Atoi(c.Query("page", "1"))
+        size, _ := strconv.Atoi(c.Query("size", "10"))
+
+        data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size)
+        return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
+            Page:       page,
+            PageSize:   size,
+            Total:      total,
+            TotalPages: totalPages,
+        })
+    }
+
+    data, err := ch.cc.GetAll()
+    return dtos.Respond(c, data, err)
 }

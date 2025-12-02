@@ -52,8 +52,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	vote.Post("", voteHDL.Vote)
 
 	course := api.Group("/course")
-	course.Get("", courseHDL.GetAllOrOne)
-	course.Get("/search", courseHDL.Search)
+	course.Get("", courseHDL.GetCourses)
 
 	prof := api.Group("/professor")
 	prof.Get("",profHDL.GetAllOrOne)
