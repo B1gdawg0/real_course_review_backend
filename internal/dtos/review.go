@@ -24,11 +24,11 @@ type ReviewFullResponse struct {
 }
 
 type CreateReviewRequest struct {
-    CourseID    string          `json:"course"`
+    CourseID    string          `json:"course_id"`
 	Comment     string          `json:"comment"`
 	Rate        RatingResponse  `json:"rating"`
 	Tags        []string       `json:"tag"`
-	ProfessorID string          `json:"professor"`
+	ProfessorID string          `json:"professor_id"`
 	Grade       string			`json:"grade"`
 	Year		string 			`json:"year"`
 	Sec			string 			`json:"sec"`
