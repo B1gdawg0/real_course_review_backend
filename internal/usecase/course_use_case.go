@@ -18,17 +18,19 @@ func NewCourseUseCase(repo repo.CourseRepository) CourseUseCase {
 	return &courseUseCase{repo: repo}
 }
 
-func (c *courseUseCase) GetAll() ([]dtos.CourseShortResponse, error) {
+func (c *courseUseCase) GetAll(page, size int) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
+	page, size, _ = c.validatePagination(page, size)
+	
 	entities, err := c.repo.GetAll()
 	if err != nil {
-		return nil, err
+		return nil, 0, 0, 0, 0, err
 	}
 
 	res := make([]dtos.CourseShortResponse, len(entities))
 	for i, entity := range entities {
 		err := copier.Copy(&res[i], &entity)
 		if err != nil {
-			return nil, err
+			return nil, 0, 0, 0, 0, err
 		}
 
 		res[i].Tags = make([]dtos.TagResponse, len(entity.Tags))
@@ -47,7 +49,10 @@ func (c *courseUseCase) GetAll() ([]dtos.CourseShortResponse, error) {
 		return res[i].Score > res[j].Score
 	})
 
-	return res, nil
+	total := int64(len(res))
+	totalPages := int(math.Ceil(float64(total) / float64(size)))
+
+	return res, page, size, total, totalPages, nil
 }
 
 func (c *courseUseCase) GetCourseById(id string) (*dtos.CourseFullResponse, error) {
