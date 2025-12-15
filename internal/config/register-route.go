@@ -21,9 +21,6 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	auth := api.Group("/auth")
 	auth.Post("", authHDL.HandleAuth)
 
-	// -- after this line, jwt token required --
-	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
-
 	courseRepo := repo.NewClassRepository(db)
 	courseUC := uc.NewCourseUseCase(courseRepo)
 	courseHDL := hdl.NewClassHandler(courseUC)
@@ -35,6 +32,17 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	reviewRepo := repo.NewReviewRepository(db)
 	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
 	reviewHDL := hdl.NewReviewHandler(reviewUC)
+
+	course := api.Group("/course")
+	course.Get("", courseHDL.GetCourses)
+
+	prof := api.Group("/professor")
+	prof.Get("", profHDL.GetAllOrOne)
+
+	review := api.Group("/review")
+	review.Get("/:filterType/:id", reviewHDL.GetReviews)
+	// -- after this line, jwt token required --
+	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 
 	tagRepo := repo.NewTagRepository(db)
 	tagUC := uc.NewTagUseCase(tagRepo)
@@ -51,14 +59,6 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	vote := api.Group("/vote")
 	vote.Post("", voteHDL.Vote)
 
-	course := api.Group("/course")
-	course.Get("", courseHDL.GetCourses)
-
-	prof := api.Group("/professor")
-	prof.Get("",profHDL.GetAllOrOne)
-
-	review := api.Group("/review")
-	review.Get("/:filterType/:id", reviewHDL.GetReviews)
 	review.Post("", reviewHDL.CreateReview)
 
 	tag := api.Group("/tag")
