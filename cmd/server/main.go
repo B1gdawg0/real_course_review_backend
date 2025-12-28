@@ -3,13 +3,19 @@ package main
 import (
 	"log"
 
+	"github.com/B1gdawg0/real_course_review_backend/internal/background"
 	"github.com/B1gdawg0/real_course_review_backend/internal/config"
+	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
+	"github.com/B1gdawg0/real_course_review_backend/internal/handler"
 	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
 	f "github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
+	eventQueue := make(chan dtos.Event, 5000)
+	background.StartEventWorker(eventQueue)
+
 	cfg := config.Load()
 
 	db := config.InitDB(cfg, m.ALL_SCHEMA...)
@@ -22,6 +28,8 @@ func main() {
 	app.Get("/health", func(c *f.Ctx) error {
 		return c.SendString("OK")
 	})
+
+	app.Post("/events", handler.CollectEvent(eventQueue))
 
 	config.RegisterRoutesV1(app, db, cfg)
 
