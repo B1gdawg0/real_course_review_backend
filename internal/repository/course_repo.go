@@ -52,9 +52,9 @@ func (c *courseRepo) Search(q string, limit int, offset int) ([]m.Course, error)
 
     err := c.db.
         Preload("Tags").
-        Where("fts @@ to_tsquery('english', ? || ':*') OR name ILIKE ? OR code ILIKE ?", 
+        Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?", 
             q, searchPattern, searchPattern).
-        Order(gorm.Expr("ts_rank(fts, to_tsquery('english', ? || ':*')) DESC, score DESC", q)).
+        Order(gorm.Expr("ts_rank(fts, plainto_tsquery('english', ?)) DESC, score DESC", q)).
         Limit(limit).
         Offset(offset).
         Find(&courses).Error
@@ -80,7 +80,7 @@ func (r *courseRepo) CountSearch(q string) (int64, error) {
     }
 
     err := r.db.Model(&m.Course{}).
-        Where("fts @@ to_tsquery('english', ? || ':*') OR name ILIKE ? OR code ILIKE ?", 
+        Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?", 
             q, searchPattern, searchPattern).
         Count(&count).Error
     

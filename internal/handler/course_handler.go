@@ -12,38 +12,45 @@ type CourseHandler struct {
 	cc uc.CourseUseCase
 }
 
-func NewClassHandler(cc uc.CourseUseCase) *CourseHandler{
+func NewClassHandler(cc uc.CourseUseCase) *CourseHandler {
 	return &CourseHandler{cc: cc}
 }
 
 func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
-    id := c.Query("id")
-    keyword := c.Query("q")
+	id := c.Query("id")
+	keyword := c.Query("q")
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	size, _ := strconv.Atoi(c.Query("size", "10"))
 
-    if id != "" && keyword != "" {
-        return fiber.NewError(fiber.StatusBadRequest, "cannot use both 'id' and 'q' together")
-    }
+	if id != "" && keyword != "" {
+		return fiber.NewError(fiber.StatusBadRequest, "cannot use both 'id' and 'q' together")
+	}
 
-    if id != "" {
-        data, err := ch.cc.GetCourseById(id)
-        return dtos.Respond(c, data, err)
-    }
+	if id != "" {
+		data, err := ch.cc.GetCourseById(id)
+		return dtos.Respond(c, data, err)
+	}
 
-    if keyword != "" {
-        page, _ := strconv.Atoi(c.Query("page", "1"))
-        size, _ := strconv.Atoi(c.Query("size", "10"))
+	if keyword != "" {
+		page, _ := strconv.Atoi(c.Query("page", "1"))
+		size, _ := strconv.Atoi(c.Query("size", "10"))
 
-        data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size)
-        return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
-            Page:       page,
-            PageSize:   size,
-            Total:      total,
-            TotalPages: totalPages,
-        })
-    }
+		data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size)
+		return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
+			Page:       page,
+			PageSize:   size,
+			Total:      total,
+			TotalPages: totalPages,
+		})
+	}
 
-    data, err := ch.cc.GetAll()
-    return dtos.Respond(c, data, err)
+	data, page, size, total, totalPages, err := ch.cc.GetAll(page, size)
+	return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
+		Page:       page,
+		PageSize:   size,
+		Total:      total,
+		TotalPages: totalPages,
+	})
 }
 
 func (ch *CourseHandler) CompareCourseByIds(c *fiber.Ctx) error {
