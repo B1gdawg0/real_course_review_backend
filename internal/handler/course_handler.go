@@ -45,3 +45,16 @@ func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
     data, err := ch.cc.GetAll()
     return dtos.Respond(c, data, err)
 }
+
+func (ch *CourseHandler) CompareCourseByIds(c *fiber.Ctx) error {
+	first := c.Params("first")
+	second := c.Params("second")
+	userId, _ := c.Locals("userID").(string)
+
+	if first == "" || second == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "both course IDs must be provided")
+	}
+
+	data, err := ch.cc.CompareCoursesById(userId, first, second)
+	return dtos.Respond(c, data, err)
+}

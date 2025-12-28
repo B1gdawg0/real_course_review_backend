@@ -96,3 +96,43 @@ func (r *reviewRepo) CreateReview(review *m.Review, course *m.Course) error {
         return nil
     })
 }
+
+func (r *reviewRepo) GetHotReviewsByCourseID(userid string, id string, limit, offset int) ([]m.Review, error) {
+		if limit <= 0 {
+			limit = 1
+		}
+
+		var reviews []m.Review
+
+		query := r.db.
+			Preload("Tags").
+			Preload("User")
+
+		if userid != "" {
+			query = query.Select(`
+				reviews.*,
+				COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
+				COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count,
+				MAX(CASE WHEN votes.user_id = ? THEN votes.vote ELSE NULL END) AS user_vote,
+				COALESCE(SUM(CASE WHEN votes.vote <> 0 THEN 1 ELSE 0 END), 0) AS interactions
+			`, userid)
+		} else {
+			query = query.Select(`
+				reviews.*,
+				COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
+				COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count,
+				COALESCE(SUM(CASE WHEN votes.vote <> 0 THEN 1 ELSE 0 END), 0) AS interactions
+			`)
+		}
+
+		err := query.
+			Joins("LEFT JOIN votes ON votes.review_id = reviews.id").
+			Where("reviews.course_id = ?", id).
+			Group("reviews.id").
+			Order("interactions DESC").
+			Limit(limit).
+			Offset(offset).
+			Find(&reviews).Error
+
+		return reviews, err
+}

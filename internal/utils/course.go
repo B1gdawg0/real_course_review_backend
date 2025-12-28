@@ -23,3 +23,13 @@ func RecalculateCourseReview(course *m.Course, req *dtos.CreateReviewRequest) (*
 
 	return course, nil
 }
+
+func MaxOfThreeInt(a, b, c int) int {
+		if a >= b && a >= c {
+			return a
+		}
+		if b >= a && b >= c {
+			return b
+		}
+		return c
+}

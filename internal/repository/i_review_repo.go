@@ -8,4 +8,5 @@ type ReviewRepository interface {
 	VerifyReviewById(id string)(bool, error)
 	CountReviewsByID(id string, section string) (int64, error)
 	CreateReview(review *m.Review, course *m.Course) error
+	GetHotReviewsByCourseID(userid string, id string, limit, offset int) ([]m.Review, error)
 }

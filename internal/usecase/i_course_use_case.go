@@ -8,4 +8,5 @@ type CourseUseCase interface {
   	GetAll() ([]dtos.CourseShortResponse, error)
 	GetCourseById(id string) (*dtos.CourseFullResponse, error)
 	Search(q string, limit, offset int) ([]dtos.CourseShortResponse, int, int, int64, int, error)
+	CompareCoursesById(userId, first, second string) ([]dtos.CourseCompareResponse, error)
 }

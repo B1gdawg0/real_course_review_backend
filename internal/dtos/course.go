@@ -18,3 +18,24 @@ type CourseFullResponse struct {
 	CourseShortResponse
 	Professors   []ProfessorShortResponse `json:"professors"`
 }
+
+type CourseCompareResponse struct {
+	// TODO: Explore oppotinity for Hoter field by compare user click count
+	AvgRate        float64 `json:"avg_rating_score"`
+	TotalReviewCount int  `json:"total_review_count"`
+	Rate		  RatingResponse `json:"rating"`
+	Tag 		  []TagResponse     `json:"tags"`
+	AISummary      string		 `json:"ai_summary"`
+	HotPicks      []ReviewShortResponse `json:"hot_picks"`
+	RawContent	RawCourseResponse `json:"raw_content"`
+}
+
+type RawCourseResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Semester    string  `json:"semester"`
+	Code        string  `json:"code"`
+	Credit      int     `json:"credit"`
+	Professors  []ProfessorShortResponse `json:"professors"`
+}

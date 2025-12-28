@@ -31,6 +31,19 @@ func (r *reviewUseCase) GetReviewsByCourseID(userid string,id string, page, size
     )
 }
 
+func (r *reviewUseCase) GetHotReviewsByCourseID(userid string, id string) (dtos.ReviewFullResponse, int, int, int64, int, error) {
+	reviews, err := r.repo.GetHotReviewsByCourseID(userid, id, 1, 0)
+	if err != nil {
+		return dtos.ReviewFullResponse{}, 0, 0, 0, 0, err
+	}
+
+	if len(reviews) == 0 {
+		return dtos.ReviewFullResponse{}, 0, 0, 0, 0, nil
+	}
+
+	return r.mapReviewToDTO(reviews[0]), 1, 1, 1, 1, nil
+}
+
 // func (r *reviewUseCase) GetReviewsByUserID(id string, page, size int) ([]dtos.ReviewFullResponse, int, int, int64, int, error) {
 //     return r.getReviews(
 //         id,
@@ -112,8 +125,6 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
         Description: review.Description,
         AvgRate:     review.AvgRate,
         Score:       review.Score,
-        UpCount:     review.UpCount,
-        DownCount:   review.DownCount,
         ReportCount: review.ReportCount,
         IsAnonymous: review.IsAnonymous,
         Tags:        r.mapTagsToDTO(review.Tags), // Updated to handle normalized tags

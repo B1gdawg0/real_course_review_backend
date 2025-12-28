@@ -24,15 +24,16 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	// -- after this line, jwt token required --
 	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 
-	courseRepo := repo.NewClassRepository(db)
-	courseUC := uc.NewCourseUseCase(courseRepo)
-	courseHDL := hdl.NewClassHandler(courseUC)
-
 	profRepo := repo.NewProfessorRepository(db)
 	profUC := uc.NewProfessorUseCase(profRepo)
 	profHDL := hdl.NewProfessorHandler(profUC)
 
+	courseRepo := repo.NewClassRepository(db)
 	reviewRepo := repo.NewReviewRepository(db)
+
+	courseUC := uc.NewCourseUseCase(courseRepo, reviewRepo)
+	courseHDL := hdl.NewClassHandler(courseUC)
+	
 	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
 	reviewHDL := hdl.NewReviewHandler(reviewUC)
 
@@ -53,6 +54,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 
 	course := api.Group("/course")
 	course.Get("", courseHDL.GetCourses)
+	course.Get("/compare/:first/:second", courseHDL.CompareCourseByIds)
 
 	prof := api.Group("/professor")
 	prof.Get("",profHDL.GetAllOrOne)
