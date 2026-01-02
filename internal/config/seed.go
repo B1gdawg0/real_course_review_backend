@@ -732,103 +732,206 @@ func Seed(db *gorm.DB) {
 
 		// Create 10 reviews
 		reviews := []m.Review{
+			// --- 01418112: Computer Programming I (courses[0]) ---
 			{
-				UserID:      users[0].ID,   // Alice
-				CourseID:    courses[0].ID, // Database Systems
+				UserID:      users[0].ID,
+				CourseID:    courses[0].ID,
 				Status:      "publish",
-				Description: "Great course! The professor explains complex database concepts very clearly. The assignments are challenging but fair.",
-				AvgRate:     4.5,
-				Rate:        "4.0,5.0,4.0,5.0", // difficulty, workload, teaching, overall
+				Description: "วิชานี้เป็นพื้นฐานที่สำคัญมาก อาจารย์สอนเข้าใจง่าย แต่ต้องฝึกเขียนโค้ดเองเยอะๆ ไม่งั้นทำข้อสอบไม่ได้",
+				AvgRate:     5.0,
+				Rate:        "4.0,4.0,5.0,5.0",
 				Score:       0.0,
 				IsAnonymous: false,
 			},
 			{
-				UserID:      users[1].ID,   // Bob
-				CourseID:    courses[0].ID, // Database Systems
+				UserID:      users[1].ID,
+				CourseID:    courses[0].ID,
 				Status:      "publish",
-				Description: "The material is interesting but the pace is quite fast. Make sure to keep up with readings.",
-				AvgRate:     3.5,
-				Rate:        "4.0,4.0,3.0,3.0",
+				Description: "Hard for beginners. The logic is confusing at first. You need to practice Python every day.",
+				AvgRate:     3.0,
+				Rate:        "5.0,5.0,3.0,3.0", // Hard difficulty
+				Score:       0.0,
+				IsAnonymous: true,
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[0].ID,
+				Status:      "publish",
+				Description: "แลปโหดมาก ตัดเกรดอิงกลุ่ม คนเก่งเยอะ ต้องขยันสุดๆ",
+				AvgRate:     4.0,
+				Rate:        "5.0,5.0,4.0,4.0", // High workload
 				Score:       0.0,
 				IsAnonymous: false,
 			},
 			{
-				UserID:      users[0].ID,   // Alice
-				CourseID:    courses[1].ID, // Machine Learning
+				UserID:      users[1].ID,
+				CourseID:    courses[0].ID,
 				Status:      "publish",
-				Description: "Excellent introduction to ML concepts. Dr. Johnson is very knowledgeable and helpful during office hours.",
-				AvgRate:     4.8,
+				Description: "Good intro to CS. If you pass this with an A, you are ready for the rest.",
+				AvgRate:     5.0,
+				Rate:        "3.0,3.0,5.0,5.0",
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+
+			// --- 01418113: Computer Programming II (courses[1]) ---
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[1].ID,
+				Status:      "publish",
+				Description: "เรียน Java/OOP สนุกดี แต่เริ่มยากตรงเรื่อง Class/Object ใครพื้นฐาน 112 ไม่แน่น เหนื่อยแน่นอน",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[1].ID,
+				Status:      "publish",
+				Description: "More complex than Prog I. Pointers and memory management in C part are tricky.",
+				AvgRate:     3.0,
+				Rate:        "5.0,4.0,3.0,3.0",
+				Score:       0.0,
+				IsAnonymous: true,
+			},
+
+			// --- 01418232: Algorithm Design (courses[2]) ---
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[2].ID,
+				Status:      "publish",
+				Description: "The most difficult math-heavy class. Dynamic Programming makes me cry.",
+				AvgRate:     2.0,
+				Rate:        "5.0,5.0,2.0,2.0", // Very Hard
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[2].ID,
+				Status:      "publish",
+				Description: "ยากมากกกก เนื้อหาเยอะสุดๆ ต้องเข้าใจ Big O ให้แม่นๆ ข้อสอบเขียนมือจนเมื่อย",
+				AvgRate:     3.0,
+				Rate:        "5.0,5.0,4.0,3.0",
+				Score:       0.0,
+				IsAnonymous: true,
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[2].ID,
+				Status:      "publish",
+				Description: "Essential for job interviews. Pay attention to graph algorithms.",
+				AvgRate:     5.0,
+				Rate:        "4.0,4.0,5.0,5.0",
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+
+			// --- 01418331: Operating Systems (courses[3]) ---
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[3].ID,
+				Status:      "publish",
+				Description: "โปรเจคเขียน OS จำลองคือตำนาน อดนอน 3 คืนติดเพื่อแก้ Bug ตัวเดียว",
+				AvgRate:     4.0,
+				Rate:        "5.0,5.0,4.0,4.0", // Extreme Workload
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[3].ID,
+				Status:      "publish",
+				Description: "Concurrency, Semaphores, Deadlocks. Very abstract concepts but cool when you understand them.",
+				AvgRate:     4.0,
+				Rate:        "5.0,3.0,4.0,4.0",
+				Score:       0.0,
+				IsAnonymous: true,
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[3].ID,
+				Status:      "publish",
+				Description: "วิชาปราบเซียน ใครผ่านวิชานี้ไปได้คือจบปี 3 อย่างภาคภูมิใจ",
+				AvgRate:     5.0,
+				Rate:        "5.0,5.0,5.0,5.0",
+				Score:       0.0,
+				IsAnonymous: false,
+			},
+
+			// --- 01418342: Web Application Development (courses[4]) ---
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[4].ID,
+				Status:      "publish",
+				Description: "Practical and fun. We built a full-stack MERN app. Portfolio ready!",
+				AvgRate:     5.0,
 				Rate:        "3.0,4.0,5.0,5.0",
 				Score:       0.0,
 				IsAnonymous: false,
 			},
 			{
-				UserID:      users[1].ID,   // Bob
-				CourseID:    courses[1].ID, // Machine Learning
+				UserID:      users[1].ID,
+				CourseID:    courses[4].ID,
 				Status:      "publish",
-				Description: "Very math-heavy course. Be prepared to spend a lot of time on assignments. Worth it though!",
-				AvgRate:     4.0,
-				Rate:        "5.0,5.0,3.0,4.0",
+				Description: "งานเยอะมากกก งานกลุ่มต้องเลือกเพื่อนดีๆ ไม่งั้นแบกหลังหัก",
+				AvgRate:     3.0,
+				Rate:        "3.0,5.0,3.0,3.0", // High Workload
 				Score:       0.0,
 				IsAnonymous: true,
 			},
 			{
-				UserID:      users[0].ID,   // Alice
-				CourseID:    courses[2].ID, // Software Engineering
+				UserID:      users[0].ID,
+				CourseID:    courses[4].ID,
 				Status:      "publish",
-				Description: "Practical course with real-world applications. The group project was particularly valuable.",
-				AvgRate:     4.3,
+				Description: "Best elective if you want to be a web dev. Teaches React, Node, and deployment.",
+				AvgRate:     5.0,
 				Rate:        "3.0,3.0,5.0,5.0",
 				Score:       0.0,
 				IsAnonymous: false,
 			},
+
+			// --- 01999111: Thai and Global Citizenship (GenEd) (courses[5]) ---
 			{
-				UserID:      users[1].ID,   // Bob
-				CourseID:    courses[2].ID, // Software Engineering
+				UserID:      users[1].ID,
+				CourseID:    courses[5].ID,
 				Status:      "publish",
-				Description: "Good course overall but the workload can be overwhelming during project weeks.",
-				AvgRate:     3.8,
-				Rate:        "4.0,5.0,3.0,4.0",
+				Description: "Easy A. Just attend the class and submit the group video project.",
+				AvgRate:     5.0,
+				Rate:        "1.0,2.0,5.0,5.0", // Very Easy
 				Score:       0.0,
 				IsAnonymous: false,
 			},
 			{
-				UserID:      users[0].ID,   // Alice
-				CourseID:    courses[3].ID, // Data Structures
+				UserID:      users[0].ID,
+				CourseID:    courses[5].ID,
 				Status:      "publish",
-				Description: "Fundamental course for CS students. The concepts are essential and well-taught.",
-				AvgRate:     4.5,
-				Rate:        "4.0,4.0,5.0,4.0",
-				Score:       0.0,
-				IsAnonymous: false,
-			},
-			{
-				UserID:      users[1].ID,   // Bob
-				CourseID:    courses[3].ID, // Data Structures
-				Status:      "publish",
-				Description: "Challenging but rewarding. Make sure to practice coding problems regularly.",
+				Description: "น่าเบื่อหน่อยๆ นั่งฟังบรรยายยาวๆ แต่เกรดสวย แนะนำให้ลงเก็บเกรด",
 				AvgRate:     4.0,
-				Rate:        "5.0,4.0,4.0,3.0",
+				Rate:        "1.0,1.0,3.0,4.0",
 				Score:       0.0,
 				IsAnonymous: true,
 			},
+
+			// --- 01418499: Senior Project (courses[6]) ---
 			{
-				UserID:      users[0].ID,   // Alice
-				CourseID:    courses[4].ID, // Computer Networks
+				UserID:      users[1].ID,
+				CourseID:    courses[6].ID,
 				Status:      "publish",
-				Description: "Interesting topic but could use more hands-on labs. Theory is solid though.",
-				AvgRate:     3.5,
-				Rate:        "3.0,3.0,4.0,3.0",
+				Description: "Depends heavily on your advisor. Choose wisely or you will suffer.",
+				AvgRate:     3.0,
+				Rate:        "5.0,5.0,3.0,3.0",
 				Score:       0.0,
 				IsAnonymous: false,
 			},
 			{
-				UserID:      users[1].ID,   // Bob
-				CourseID:    courses[4].ID, // Computer Networks
+				UserID:      users[0].ID,
+				CourseID:    courses[6].ID,
 				Status:      "publish",
-				Description: "Great coverage of network protocols. The final project was very educational.",
-				AvgRate:     4.2,
-				Rate:        "4.0,4.0,4.0,5.0",
+				Description: "เครียดมาก ต้องแบ่งเวลาดีๆ อย่าดองงาน ทำเล่มวิจัยเหนื่อยกว่าเขียนโค้ดอีก",
+				AvgRate:     3.0,
+				Rate:        "5.0,5.0,3.0,3.0",
 				Score:       0.0,
 				IsAnonymous: false,
 			},
