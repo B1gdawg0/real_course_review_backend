@@ -83,7 +83,7 @@ func Seed(db *gorm.DB) {
 		db.Create(&professors)
 	}
 
-	// --- Courses ---
+	// --- Courses (from both 2560 and 2565 curricula) ---
 	var courseCount int64
 	db.Model(&m.Course{}).Count(&courseCount)
 	if courseCount == 0 {
@@ -94,6 +94,7 @@ func Seed(db *gorm.DB) {
 		db.Where("email = ?", "michael.brown@university.edu").First(&michael)
 
 		courses := []m.Course{
+			// ===== GENERAL EDUCATION =====
 			// General Education - Citizenship
 			{
 				Name:        "Active Citizenship",
@@ -110,7 +111,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Core Courses
+			// ===== CORE COURSES =====
 			{
 				Name:        "Calculus I",
 				Description: "Introduction to differential and integral calculus.",
@@ -126,10 +127,10 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 			{
-				Name:        "Probability and Statistics for Computer Science",
-				Description: "Probability theory and statistical methods for CS.",
+				Name:        "Calculus II",
+				Description: "Continuation of Calculus I with advanced topics.",
 				Semester:    "2/2025",
-				Code:        "01417322",
+				Code:        "01417112",
 				Credit:      3,
 				CourseType:  "CORE",
 				ReviewCount: "0,0,0",
@@ -140,16 +141,16 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 			{
-				Name:        "Calculus II",
-				Description: "Continuation of Calculus I with advanced topics.",
-				Semester:    "2/2025",
+				Name:        "Digital Computer Logic",
+				Description: "Logic gates, Boolean algebra, and digital circuits.",
+				Semester:    "1/2025",
 				Code:        "01418131",
 				Credit:      3,
 				CourseType:  "CORE",
 				ReviewCount: "0,0,0",
 				Rate:        "0",
 				Score:       0.0,
-				Professors:  []m.Professor{emily},
+				Professors:  []m.Professor{michael},
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
 			},
@@ -167,8 +168,22 @@ func Seed(db *gorm.DB) {
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
 			},
+			{
+				Name:        "Probability and Statistics for Computer Science",
+				Description: "Probability theory and statistical methods for CS.",
+				Semester:    "2/2025",
+				Code:        "01417322",
+				Credit:      3,
+				CourseType:  "CORE",
+				ReviewCount: "0,0,0",
+				Rate:        "0",
+				Score:       0.0,
+				Professors:  []m.Professor{emily},
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
 
-			// Required - Software Technology
+			// ===== REQUIRED SPECIALIZED - SOFTWARE TECHNOLOGY =====
 			{
 				Name:        "Computer Programming I",
 				Description: "Introduction to programming using Python.",
@@ -240,7 +255,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Required - System Infrastructure
+			// ===== REQUIRED SPECIALIZED - SYSTEM INFRASTRUCTURE =====
 			{
 				Name:        "Discrete Mathematics",
 				Description: "Mathematical foundations for computer science.",
@@ -298,7 +313,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Required - Hardware and Architecture
+			// ===== REQUIRED SPECIALIZED - HARDWARE AND ARCHITECTURE =====
 			{
 				Name:        "Computer Architecture",
 				Description: "Computer organization and architecture principles.",
@@ -314,7 +329,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Required - Application Technology
+			// ===== REQUIRED SPECIALIZED - APPLICATION TECHNOLOGY =====
 			{
 				Name:        "Database Systems",
 				Description: "Database design and management systems.",
@@ -400,7 +415,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - Software Development
+			// ===== ELECTIVE SPECIALIZED - SOFTWARE DEVELOPMENT =====
 			{
 				Name:        "Software Engineering Principles",
 				Description: "Principles and practices of software engineering.",
@@ -430,7 +445,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - Database and Information Systems
+			// ===== ELECTIVE SPECIALIZED - DATABASE AND INFORMATION SYSTEMS =====
 			{
 				Name:        "Database Programming",
 				Description: "Advanced database programming techniques.",
@@ -474,7 +489,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - Network and Systems
+			// ===== ELECTIVE SPECIALIZED - NETWORK AND SYSTEMS =====
 			{
 				Name:        "Computer Networks II",
 				Description: "Advanced networking concepts and protocols.",
@@ -518,7 +533,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - AI and Machine Learning
+			// ===== ELECTIVE SPECIALIZED - AI AND MACHINE LEARNING =====
 			{
 				Name:        "Introduction to Data Science",
 				Description: "Data analysis and visualization techniques.",
@@ -576,7 +591,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - Computer Graphics and Multimedia
+			// ===== ELECTIVE SPECIALIZED - COMPUTER GRAPHICS AND MULTIMEDIA =====
 			{
 				Name:        "Multimedia Systems",
 				Description: "Multimedia data processing and systems.",
@@ -606,7 +621,7 @@ func Seed(db *gorm.DB) {
 				UpdatedAt:   time.Now(),
 			},
 
-			// Elective - Web and Applications
+			// ===== ELECTIVE SPECIALIZED - WEB AND APPLICATIONS =====
 			{
 				Name:        "Web Application Development",
 				Description: "Modern web application development.",
@@ -628,34 +643,6 @@ func Seed(db *gorm.DB) {
 				Code:        "01418421",
 				Credit:      3,
 				CourseType:  "ELECTIVE_SPECIALIZED",
-				ReviewCount: "0,0,0",
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{michael},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
-			},
-
-			// Elective for Non-CS Students
-			{
-				Name:        "Introduction to Computers and Programming",
-				Description: "Basic computer literacy and programming.",
-				Semester:    "1/2025",
-				Code:        "01418101",
-				Credit:      3,
-				ReviewCount: "0,0,0",
-				Rate:        "0",
-				Score:       0.0,
-				Professors:  []m.Professor{john},
-				CreatedAt:   time.Now(),
-				UpdatedAt:   time.Now(),
-			},
-			{
-				Name:        "Computer and Information Literacy",
-				Description: "Information technology and digital literacy.",
-				Semester:    "1/2025",
-				Code:        "01418102",
-				Credit:      3,
 				ReviewCount: "0,0,0",
 				Rate:        "0",
 				Score:       0.0,
@@ -767,210 +754,536 @@ func Seed(db *gorm.DB) {
 		db.Find(&users)
 		db.Find(&courses)
 
-		// Create 10 reviews
+		if len(users) < 2 || len(courses) == 0 {
+			log.Println("Not enough users or courses to create reviews")
+			return
+		}
+
+		// Create comprehensive reviews for various courses
 		reviews := []m.Review{
-			// --- 01418112: Computer Programming I (courses[0]) ---
+			// ===== Computer Programming I (01418112) =====
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[0].ID,
+				CourseID:    courses[6].ID, // Adjust index based on your course order
 				Status:      "publish",
-				Description: "วิชานี้เป็นพื้นฐานที่สำคัญมาก อาจารย์สอนเข้าใจง่าย แต่ต้องฝึกเขียนโค้ดเองเยอะๆ ไม่งั้นทำข้อสอบไม่ได้",
-				AvgRate:     5.0,
+				Description: "วิชานี้เป็นพื้นฐานที่สำคัญมาก อาจารย์สอนเข้าใจง่าย แต่ต้องฝึกเขียนโค้ดเองเยอะๆ ไม่งั้นทำข้อสอบไม่ได้ แนะนำให้ทำโจทย์แลปทุกอาทิตย์",
+				AvgRate:     4.5,
 				Rate:        "4.0,4.0,5.0,5.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[1].ID,
-				CourseID:    courses[0].ID,
+				CourseID:    courses[6].ID,
 				Status:      "publish",
-				Description: "Hard for beginners. The logic is confusing at first. You need to practice Python every day.",
-				AvgRate:     3.0,
-				Rate:        "5.0,5.0,3.0,3.0", // Hard difficulty
+				Description: "Hard for beginners. The logic is confusing at first. You need to practice Python every day. TA sessions are helpful!",
+				AvgRate:     3.5,
+				Rate:        "5.0,3.0,3.0,3.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "02",
 				Score:       0.0,
 				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[0].ID,
+				CourseID:    courses[6].ID,
 				Status:      "publish",
-				Description: "แลปโหดมาก ตัดเกรดอิงกลุ่ม คนเก่งเยอะ ต้องขยันสุดๆ",
+				Description: "แลปโหดมาก ตัดเกรดอิงกลุ่ม คนเก่งเยอะ ต้องขยันสุดๆ อย่าปล่อยงานค้าง",
 				AvgRate:     4.0,
-				Rate:        "5.0,5.0,4.0,4.0", // High workload
+				Rate:        "5.0,4.0,4.0,3.0",
+				Grade:       "A",
+				Year:        "2023",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
-			},
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[0].ID,
-				Status:      "publish",
-				Description: "Good intro to CS. If you pass this with an A, you are ready for the rest.",
-				AvgRate:     5.0,
-				Rate:        "3.0,3.0,5.0,5.0",
-				Score:       0.0,
-				IsAnonymous: false,
+				CreatedAt:   time.Now().Add(-24 * time.Hour),
+				UpdatedAt:   time.Now().Add(-24 * time.Hour),
 			},
 
-			// --- 01418113: Computer Programming II (courses[1]) ---
+			// ===== Computer Programming II (01418113) =====
 			{
-				UserID:      users[0].ID,
-				CourseID:    courses[1].ID,
+				UserID:      users[1].ID,
+				CourseID:    courses[7].ID,
 				Status:      "publish",
-				Description: "เรียน Java/OOP สนุกดี แต่เริ่มยากตรงเรื่อง Class/Object ใครพื้นฐาน 112 ไม่แน่น เหนื่อยแน่นอน",
+				Description: "เรียน Java/OOP สนุกดี แต่เริ่มยากตรงเรื่อง Class/Object ใครพื้นฐาน 112 ไม่แน่น เหนื่อยแน่นอน ต้องเข้าใจ Polymorphism กับ Inheritance ให้ชัดเจน",
 				AvgRate:     4.0,
 				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
-			},
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[1].ID,
-				Status:      "publish",
-				Description: "More complex than Prog I. Pointers and memory management in C part are tricky.",
-				AvgRate:     3.0,
-				Rate:        "5.0,4.0,3.0,3.0",
-				Score:       0.0,
-				IsAnonymous: true,
-			},
-
-			// --- 01418232: Algorithm Design (courses[2]) ---
-			{
-				UserID:      users[0].ID,
-				CourseID:    courses[2].ID,
-				Status:      "publish",
-				Description: "The most difficult math-heavy class. Dynamic Programming makes me cry.",
-				AvgRate:     2.0,
-				Rate:        "5.0,5.0,2.0,2.0", // Very Hard
-				Score:       0.0,
-				IsAnonymous: false,
-			},
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[2].ID,
-				Status:      "publish",
-				Description: "ยากมากกกก เนื้อหาเยอะสุดๆ ต้องเข้าใจ Big O ให้แม่นๆ ข้อสอบเขียนมือจนเมื่อย",
-				AvgRate:     3.0,
-				Rate:        "5.0,5.0,4.0,3.0",
-				Score:       0.0,
-				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[2].ID,
+				CourseID:    courses[7].ID,
 				Status:      "publish",
-				Description: "Essential for job interviews. Pay attention to graph algorithms.",
-				AvgRate:     5.0,
-				Rate:        "4.0,4.0,5.0,5.0",
+				Description: "More complex than Prog I. Pointers and memory management are tricky. Final project is fun though!",
+				AvgRate:     3.5,
+				Rate:        "5.0,3.0,3.0,3.0",
+				Grade:       "B",
+				Year:        "2024",
+				Sec:         "02",
 				Score:       0.0,
-				IsAnonymous: false,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 
-			// --- 01418331: Operating Systems (courses[3]) ---
+			// ===== Data Structures (01418231) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[9].ID,
+				Status:      "publish",
+				Description: "วิชาสำคัญมากๆ ต้องเข้าใจ Tree, Graph, Linked List ให้ชัดเจน เพราะใช้ตลอดในวิชาต่อๆ ไป ข้อสอบยากแต่ให้เกรดดี",
+				AvgRate:     4.5,
+				Rate:        "5.0,4.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
 			{
 				UserID:      users[1].ID,
-				CourseID:    courses[3].ID,
+				CourseID:    courses[9].ID,
 				Status:      "publish",
-				Description: "โปรเจคเขียน OS จำลองคือตำนาน อดนอน 3 คืนติดเพื่อแก้ Bug ตัวเดียว",
+				Description: "Fundamental course. Teaches LinkedList, Stack, Queue, Tree, Graph. Practice coding these from scratch!",
 				AvgRate:     4.0,
-				Rate:        "5.0,5.0,4.0,4.0", // Extreme Workload
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Algorithm Design and Analysis (01418232) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[10].ID,
+				Status:      "publish",
+				Description: "The most difficult class. Dynamic Programming makes me cry. ต้องทำโจทย์เยอะมากๆ จึงจะเข้าใจ Greedy, DP, Divide & Conquer",
+				AvgRate:     2.5,
+				Rate:        "5.0,2.0,2.0,1.0",
+				Grade:       "C+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[10].ID,
+				Status:      "publish",
+				Description: "ยากมากกกก เนื้อหาเยอะสุดๆ ต้องเข้าใจ Big O ให้แม่นๆ ข้อสอบเขียนมือจนเมื่อย แต่วิชานี้สำคัญสำหรับ interview งาน",
+				AvgRate:     3.0,
+				Rate:        "5.0,3.0,3.0,1.0",
+				Grade:       "B",
+				Year:        "2024",
+				Sec:         "02",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[3].ID,
+				CourseID:    courses[10].ID,
 				Status:      "publish",
-				Description: "Concurrency, Semaphores, Deadlocks. Very abstract concepts but cool when you understand them.",
+				Description: "Essential for job interviews at top tech companies. Pay attention to graph algorithms and DP patterns.",
+				AvgRate:     4.5,
+				Rate:        "5.0,4.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2023",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now().Add(-48 * time.Hour),
+				UpdatedAt:   time.Now().Add(-48 * time.Hour),
+			},
+
+			// ===== Software Construction (01418211) =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[8].ID,
+				Status:      "publish",
+				Description: "เรียน Design Pattern สนุกมาก ได้ฝึกเขียนโค้ดแบบมืออาชีพ โปรเจคกลุ่มใหญ่มาก ต้องใช้ Git และ CI/CD",
+				AvgRate:     4.5,
+				Rate:        "4.0,5.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[8].ID,
+				Status:      "publish",
+				Description: "Group project is huge. Need good teammates or you'll suffer. Learned MVC, SOLID principles, testing.",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Operating Systems (01418331) =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[13].ID,
+				Status:      "publish",
+				Description: "โปรเจคเขียน OS จำลองคือตำนาน อดนอน 3 คืนติดเพื่อแก้ Bug ตัวเดียว แต่ได้ความรู้เยอะมาก Process, Thread, Synchronization",
+				AvgRate:     4.0,
+				Rate:        "5.0,4.0,4.0,3.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[13].ID,
+				Status:      "publish",
+				Description: "Concurrency, Semaphores, Deadlocks. Very abstract but cool when you understand. Midterm is brutal!",
+				AvgRate:     3.5,
+				Rate:        "5.0,3.0,3.0,3.0",
+				Grade:       "B",
+				Year:        "2024",
+				Sec:         "02",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[13].ID,
+				Status:      "publish",
+				Description: "วิชาปราบเซียน ใครผ่านวิชานี้ไปได้คือจบปี 3 อย่างภาคภูมิใจ Scheduling algorithms are fun!",
+				AvgRate:     4.5,
+				Rate:        "5.0,5.0,4.0,4.0",
+				Grade:       "A",
+				Year:        "2023",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now().Add(-72 * time.Hour),
+				UpdatedAt:   time.Now().Add(-72 * time.Hour),
+			},
+
+			// ===== Database Systems (01418221) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[17].ID,
+				Status:      "publish",
+				Description: "เรียน SQL, Normalization, Transaction สนุกดีครับ โปรเจคทำ web app ด้วย database จริงๆ Practical มาก!",
+				AvgRate:     4.5,
+				Rate:        "4.0,5.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[17].ID,
+				Status:      "publish",
+				Description: "SQL queries can get tricky. Join operations need practice. The database design project is challenging.",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Computer Networks I (01418351) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[15].ID,
+				Status:      "publish",
+				Description: "เรียน TCP/IP, HTTP, DNS เนื้อหาเยอะมาก ต้องท่องโปรโตคอลหลายตัว แลปเขียน socket programming สนุกดี",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[15].ID,
+				Status:      "publish",
+				Description: "OSI model, packet switching, routing algorithms. Lots of memorization. Wireshark labs are cool!",
+				AvgRate:     3.5,
+				Rate:        "4.0,3.0,4.0,3.0",
+				Grade:       "B",
+				Year:        "2024",
+				Sec:         "02",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Machine Learning (01418362) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[26].ID,
+				Status:      "publish",
+				Description: "วิชาฮอตมาก! เรียน Neural Network, SVM, Decision Tree แนะนำให้มีพื้นฐาน Linear Algebra และ Probability ดีก่อน",
+				AvgRate:     4.5,
+				Rate:        "5.0,4.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[26].ID,
+				Status:      "publish",
+				Description: "Math heavy! Gradient descent, backpropagation need calculus. Project using sklearn/pytorch is fun!",
 				AvgRate:     4.0,
 				Rate:        "5.0,3.0,4.0,4.0",
-				Score:       0.0,
-				IsAnonymous: true,
-			},
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[3].ID,
-				Status:      "publish",
-				Description: "วิชาปราบเซียน ใครผ่านวิชานี้ไปได้คือจบปี 3 อย่างภาคภูมิใจ",
-				AvgRate:     5.0,
-				Rate:        "5.0,5.0,5.0,5.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 
-			// --- 01418342: Web Application Development (courses[4]) ---
+			// ===== Web Application Development (01418342) =====
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[4].ID,
+				CourseID:    courses[30].ID,
 				Status:      "publish",
-				Description: "Practical and fun. We built a full-stack MERN app. Portfolio ready!",
+				Description: "Practical and fun! We built a full-stack MERN app. Portfolio ready! เรียน React, Node.js, MongoDB",
 				AvgRate:     5.0,
-				Rate:        "3.0,4.0,5.0,5.0",
+				Rate:        "3.0,5.0,5.0,5.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[1].ID,
-				CourseID:    courses[4].ID,
+				CourseID:    courses[30].ID,
 				Status:      "publish",
-				Description: "งานเยอะมากกก งานกลุ่มต้องเลือกเพื่อนดีๆ ไม่งั้นแบกหลังหัก",
-				AvgRate:     3.0,
-				Rate:        "3.0,5.0,3.0,3.0", // High Workload
-				Score:       0.0,
-				IsAnonymous: true,
-			},
-			{
-				UserID:      users[0].ID,
-				CourseID:    courses[4].ID,
-				Status:      "publish",
-				Description: "Best elective if you want to be a web dev. Teaches React, Node, and deployment.",
-				AvgRate:     5.0,
-				Rate:        "3.0,3.0,5.0,5.0",
-				Score:       0.0,
-				IsAnonymous: false,
-			},
-
-			// --- 01999111: Thai and Global Citizenship (GenEd) (courses[5]) ---
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[5].ID,
-				Status:      "publish",
-				Description: "Easy A. Just attend the class and submit the group video project.",
-				AvgRate:     5.0,
-				Rate:        "1.0,2.0,5.0,5.0", // Very Easy
-				Score:       0.0,
-				IsAnonymous: false,
-			},
-			{
-				UserID:      users[0].ID,
-				CourseID:    courses[5].ID,
-				Status:      "publish",
-				Description: "น่าเบื่อหน่อยๆ นั่งฟังบรรยายยาวๆ แต่เกรดสวย แนะนำให้ลงเก็บเกรด",
+				Description: "งานเยอะมากกก งานกลุ่มต้องเลือกเพื่อนดีๆ ไม่งั้นแบกหลังหัก แต่ได้ความรู้เยอะมาก frontend + backend",
 				AvgRate:     4.0,
-				Rate:        "1.0,1.0,3.0,4.0",
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "02",
 				Score:       0.0,
 				IsAnonymous: true,
-			},
-
-			// --- 01418499: Senior Project (courses[6]) ---
-			{
-				UserID:      users[1].ID,
-				CourseID:    courses[6].ID,
-				Status:      "publish",
-				Description: "Depends heavily on your advisor. Choose wisely or you will suffer.",
-				AvgRate:     3.0,
-				Rate:        "5.0,5.0,3.0,3.0",
-				Score:       0.0,
-				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 			{
 				UserID:      users[0].ID,
-				CourseID:    courses[6].ID,
+				CourseID:    courses[30].ID,
 				Status:      "publish",
-				Description: "เครียดมาก ต้องแบ่งเวลาดีๆ อย่าดองงาน ทำเล่มวิจัยเหนื่อยกว่าเขียนโค้ดอีก",
-				AvgRate:     3.0,
-				Rate:        "5.0,5.0,3.0,3.0",
+				Description: "Best elective if you want to be a web dev. Teaches React hooks, REST API, authentication, deployment.",
+				AvgRate:     5.0,
+				Rate:        "2.0,5.0,5.0,5.0",
+				Grade:       "A",
+				Year:        "2023",
+				Sec:         "01",
 				Score:       0.0,
 				IsAnonymous: false,
+				CreatedAt:   time.Now().Add(-96 * time.Hour),
+				UpdatedAt:   time.Now().Add(-96 * time.Hour),
+			},
+
+			// ===== Mobile Application Development (01418421) =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[31].ID,
+				Status:      "publish",
+				Description: "เรียน Flutter สร้าง app ได้ทั้ง iOS และ Android แค่โค้ดชุดเดียว โปรเจคสนุกมาก แต่ต้องมี design sense",
+				AvgRate:     4.5,
+				Rate:        "3.0,5.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[31].ID,
+				Status:      "publish",
+				Description: "React Native course. Learn mobile UI/UX, state management, API integration. Final project goes to resume!",
+				AvgRate:     4.0,
+				Rate:        "3.0,4.0,5.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Active Citizenship (01999111) - Gen Ed =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[0].ID,
+				Status:      "publish",
+				Description: "Easy A. Just attend the class and submit the group video project. ไม่ยากเลย เก็บเกรดไว้ดี",
+				AvgRate:     5.0,
+				Rate:        "1.0,5.0,5.0,5.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[0].ID,
+				Status:      "publish",
+				Description: "น่าเบื่อหน่อยๆ นั่งฟังบรรยายยาวๆ แต่เกรดสวย แนะนำให้ลงเก็บเกรด GPA ดีๆ ไว้",
+				AvgRate:     4.0,
+				Rate:        "1.0,4.0,4.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "02",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Senior Project (01418499) =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[22].ID,
+				Status:      "publish",
+				Description: "Depends heavily on your advisor. Choose wisely or you will suffer. ต้องทำ thesis paper ด้วย",
+				AvgRate:     3.5,
+				Rate:        "5.0,3.0,3.0,3.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[22].ID,
+				Status:      "publish",
+				Description: "เครียดมาก ต้องแบ่งเวลาดีๆ อย่าดองงาน ทำเล่มวิจัยเหนื่อยกว่าเขียนโค้ดอีก แต่ได้ใส่ resume",
+				AvgRate:     4.0,
+				Rate:        "5.0,4.0,4.0,3.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Intelligent Systems (01418321) =====
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[18].ID,
+				Status:      "publish",
+				Description: "เรียน AI basic, search algorithms, logic, expert systems พื้นฐานดีมาก ก่อนไปเรียน ML ต้องผ่านวิชานี้ก่อน",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+
+			// ===== Computer Security (01418451) =====
+			{
+				UserID:      users[1].ID,
+				CourseID:    courses[24].ID,
+				Status:      "publish",
+				Description: "Learn cryptography, network security, SQL injection, XSS. Very relevant for web developers!",
+				AvgRate:     4.5,
+				Rate:        "4.0,5.0,5.0,4.0",
+				Grade:       "A",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: false,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+			},
+			{
+				UserID:      users[0].ID,
+				CourseID:    courses[24].ID,
+				Status:      "publish",
+				Description: "เรียน RSA, AES, Hash functions สนุกดี CTF challenges ในแลปเสพติดมาก Ethical hacking 101!",
+				AvgRate:     4.0,
+				Rate:        "4.0,4.0,4.0,4.0",
+				Grade:       "B+",
+				Year:        "2024",
+				Sec:         "01",
+				Score:       0.0,
+				IsAnonymous: true,
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
 			},
 		}
 
@@ -995,16 +1308,54 @@ func Seed(db *gorm.DB) {
 		if len(reviews) > 0 && len(tags) > 0 {
 			// Define review-appropriate tag mappings based on review content
 			reviewTagMappings := map[int][]string{
-				0: {"Clear", "Fair", "Practical"},                   // Database Systems - Alice
-				1: {"Fast Paced", "Time-consuming", "Interesting"},  // Database Systems - Bob
-				2: {"Helpful", "Knowledgeable", "Rewarding"},        // Machine Learning - Alice
-				3: {"Math Heavy", "Time-consuming", "Difficult"},    // Machine Learning - Bob
-				4: {"Practical", "Group Work", "Rewarding"},         // Software Engineering - Alice
-				5: {"Time-consuming", "Group Work", "Difficult"},    // Software Engineering - Bob
-				6: {"Fundamental", "Well Organized", "Clear"},       // Data Structures - Alice
-				7: {"Challenging", "Coding Intensive", "Rewarding"}, // Data Structures - Bob
-				8: {"Theoretical", "Boring", "Outdated Material"},   // Computer Networks - Alice
-				9: {"Final Project", "Rewarding", "Well Organized"}, // Computer Networks - Bob
+				// Computer Programming I reviews
+				0: {"Clear", "Fair", "Practical", "Fundamental"},
+				1: {"Difficult", "Time-consuming", "Coding Intensive"},
+				2: {"Challenging", "Fast Paced", "Time-consuming"},
+				// Computer Programming II reviews
+				3: {"Interesting", "Practical", "Challenging"},
+				4: {"Difficult", "Math Heavy", "Coding Intensive"},
+				// Data Structures reviews
+				5: {"Fundamental", "Well Organized", "Rewarding"},
+				6: {"Clear", "Practical", "Coding Intensive"},
+				// Algorithm Design reviews
+				7: {"Difficult", "Math Heavy", "Challenging"},
+				8: {"Difficult", "Time-consuming", "Theoretical"},
+				9: {"Rewarding", "Challenging", "Fundamental"},
+				// Software Construction reviews
+				10: {"Practical", "Group Work", "Rewarding"},
+				11: {"Time-consuming", "Group Work", "Practical"},
+				// Operating Systems reviews
+				12: {"Challenging", "Time-consuming", "Rewarding"},
+				13: {"Difficult", "Theoretical", "Confusing"},
+				14: {"Rewarding", "Challenging", "Fundamental"},
+				// Database Systems reviews
+				15: {"Practical", "Well Organized", "Rewarding"},
+				16: {"Challenging", "Practical", "Coding Intensive"},
+				// Computer Networks reviews
+				17: {"Theoretical", "Time-consuming", "Interesting"},
+				18: {"Practical", "Lab Work", "Interesting"},
+				// Machine Learning reviews
+				19: {"Math Heavy", "Rewarding", "Interesting"},
+				20: {"Challenging", "Theoretical", "Practical"},
+				// Web Application Development reviews
+				21: {"Practical", "Rewarding", "Fun"},
+				22: {"Time-consuming", "Group Work", "Practical"},
+				23: {"Rewarding", "Practical", "Well Organized"},
+				// Mobile Application Development reviews
+				24: {"Practical", "Fun", "Rewarding"},
+				25: {"Practical", "Group Work", "Interesting"},
+				// Active Citizenship reviews
+				26: {"Easy", "Boring"},
+				27: {"Easy", "Good Textbook"},
+				// Senior Project reviews
+				28: {"Challenging", "Time-consuming", "Final Project"},
+				29: {"Rewarding", "Time-consuming", "Writing Intensive"},
+				// Intelligent Systems review
+				30: {"Fundamental", "Theoretical", "Interesting"},
+				// Computer Security reviews
+				31: {"Practical", "Interesting", "Rewarding"},
+				32: {"Fun", "Practical", "Interesting"},
 			}
 
 			// Create review-tag relationships using junction table
