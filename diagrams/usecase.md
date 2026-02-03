@@ -74,14 +74,14 @@
 
 ---
 
-## 4. ดูรายละเอียดรายวิชา
+## 4. ดูรายละเอียดรายวิชาและรีวิว
 
 | **Usecase ID** | UC-004 |
 |----------------|---------|
-| **Usecase Name** | ดูรายละเอียดรายวิชา |
+| **Usecase Name** | ดูรายละเอียดรายวิชาและรีวิว |
 | **Actor** | ผู้ใช้งาน |
 | **Pre-Condition** | - ผู้ใช้ Login เข้าสู่ระบบแล้ว<br>- มี Course ID ที่ต้องการดู |
-| **Post-Condition** | - แสดงรายละเอียดวิชาแบบเต็ม (ชื่อ, รายละเอียด, อาจารย์, Tags, Rate) |
+| **Post-Condition** | - แสดงรายละเอียดวิชาแบบเต็ม (ชื่อ, รายละเอียด, อาจารย์, Tags, Rate)<br>- แสดงรีวิวทั้งหมดของวิชา พร้อม Vote count และ Tags<br>- รีวิวถูกเรียงตาม Score |
 
 | **Normal Flow** | |
 |-----------------|---|
@@ -89,8 +89,10 @@
 | 1. ผู้ใช้คลิกที่รายวิชาที่สนใจ | |
 | | 2. ระบบดึงข้อมูลรายวิชาตาม ID<br>`courseRepo.GetCourseById(id)`<br>`SELECT * FROM courses WHERE id = ?`<br>`PRELOAD professors, tags` |
 | | 3. ระบบคำนวณ Rate และ Review Count<br>`utils.ParseRate(entity.Rate)`<br>`utils.ParseReviewCount(entity.ReviewCount)` |
-| | 4. ระบบส่งข้อมูลรายวิชาแบบเต็ม<br>`Return CourseFullResponse` |
-| 5. ผู้ใช้เห็นรายละเอียดวิชาพร้อมอาจารย์ผู้สอนและ Tags | |
+| | 4. ระบบดึงรีวิวตาม Course ID<br>`reviewRepo.GetReviewsByCourseId(userId, courseId, page, size)`<br>`SELECT * FROM reviews WHERE course_id = ?`<br>`LEFT JOIN users, tags, votes`<br>`ORDER BY score DESC` |
+| | 5. ระบบคำนวณ AvgRate และสถานะการ Vote ของผู้ใช้<br>`Map to DTO (calculate AvgRate, user vote status)` |
+| | 6. ระบบส่งข้อมูลรายวิชาพร้อมรีวิว<br>`Return { course: CourseFullResponse, reviews: ReviewFullResponse[], page, size, total, totalPages }` |
+| 7. ผู้ใช้เห็นรายละเอียดวิชาพร้อมอาจารย์ผู้สอน, Tags และรีวิวทั้งหมด | |
 
 | **Alternative Flow** | |
 |---------------------|---|
@@ -125,29 +127,9 @@
 
 ---
 
-## 6. ดูรีวิวของรายวิชา
+## 6. เขียนรีวิว
 
 | **Usecase ID** | UC-006 |
-|----------------|---------|
-| **Usecase Name** | ดูรีวิวของรายวิชา |
-| **Actor** | ผู้ใช้งาน |
-| **Pre-Condition** | - ผู้ใช้ Login เข้าสู่ระบบแล้ว<br>- อยู่ในหน้ารายละเอียดวิชา |
-| **Post-Condition** | - แสดงรีวิวทั้งหมดของวิชา พร้อม Vote count และ Tags<br>- รีวิวถูกเรียงตาม Score |
-
-| **Normal Flow** | |
-|-----------------|---|
-| **Actor** | **System** |
-| 1. ผู้ใช้เลื่อนลงมาดูส่วนรีวิว | |
-| | 2. ระบบดึงรีวิวตาม Course ID<br>`reviewRepo.GetReviewsByCourseId(userId, courseId, page, size)`<br>`SELECT * FROM reviews WHERE course_id = ?`<br>`LEFT JOIN users, tags, votes`<br>`ORDER BY score DESC` |
-| | 3. ระบบคำนวณ AvgRate และสถานะการ Vote ของผู้ใช้<br>`Map to DTO (calculate AvgRate, user vote status)` |
-| | 4. ระบบส่งข้อมูลรีวิวพร้อม Pagination<br>`Return ReviewFullResponse[], page, size, total, totalPages` |
-| 5. ผู้ใช้เห็นรีวิวทั้งหมดพร้อม Vote และ Tags | |
-
----
-
-## 7. เขียนรีวิว
-
-| **Usecase ID** | UC-007 |
 |----------------|---------|
 | **Usecase Name** | เขียนรีวิววิชา |
 | **Actor** | ผู้ใช้งาน |
@@ -173,9 +155,9 @@
 
 ---
 
-## 8. โหวตรีวิว
+## 7. โหวตรีวิว
 
-| **Usecase ID** | UC-008 |
+| **Usecase ID** | UC-007 |
 |----------------|---------|
 | **Usecase Name** | โหวตรีวิว (Upvote/Downvote) |
 | **Actor** | ผู้ใช้งาน |
@@ -203,9 +185,9 @@
 
 ---
 
-## 9. ดูข้อมูลอาจารย์
+## 8. ดูข้อมูลอาจารย์
 
-| **Usecase ID** | UC-009 |
+| **Usecase ID** | UC-008 |
 |----------------|---------|
 | **Usecase Name** | ดูข้อมูลอาจารย์ |
 | **Actor** | ผู้ใช้งาน |
@@ -222,28 +204,9 @@
 
 ---
 
-## 10. ดูข้อมูล Tags
+## 9. รายงานรีวิว
 
-| **Usecase ID** | UC-010 |
-|----------------|---------|
-| **Usecase Name** | ดูข้อมูล Tags |
-| **Actor** | ผู้ใช้งาน |
-| **Pre-Condition** | - ผู้ใช้ Login เข้าสู่ระบบแล้ว |
-| **Post-Condition** | - แสดง Tags ทั้งหมดในระบบ (สำหรับเลือกเวลาเขียนรีวิวหรือ filter) |
-
-| **Normal Flow** | |
-|-----------------|---|
-| **Actor** | **System** |
-| 1. ผู้ใช้เปิดหน้าเขียนรีวิว<br>หรือใช้ filter ด้วย Tags | |
-| | 2. ระบบดึงข้อมูล Tags<br>`tagRepo.GetTagById(id)` (ถ้ามี id)<br>หรือ `tagRepo.GetAll()` (ถ้าไม่มี id)<br>`SELECT * FROM tags WHERE id = ?`<br>หรือ `SELECT * FROM tags` |
-| | 3. ระบบส่งข้อมูล Tags กลับไป<br>`Return TagResponse[]` |
-| 4. ผู้ใช้เห็น Tags ทั้งหมดสำหรับเลือก | |
-
----
-
-## 11. รายงานรีวิว
-
-| **Usecase ID** | UC-011 |
+| **Usecase ID** | UC-009 |
 |----------------|---------|
 | **Usecase Name** | รายงานรีวิวที่ไม่เหมาะสม |
 | **Actor** | ผู้ใช้งาน |
@@ -266,9 +229,9 @@
 
 ---
 
-## 12. ดูรายงานทั้งหมด (Admin)
+## 10. ดูรายงานทั้งหมด (Admin)
 
-| **Usecase ID** | UC-012 |
+| **Usecase ID** | UC-010 |
 |----------------|---------|
 | **Usecase Name** | ดูรายงานทั้งหมด |
 | **Actor** | ผู้ดูแลระบบ (Admin) |
