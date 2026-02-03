@@ -39,3 +39,7 @@ type RawCourseResponse struct {
 	Credit      int     `json:"credit"`
 	Professors  []ProfessorShortResponse `json:"professors"`
 }
+
+type CourseAISummaryResponse struct {
+	Output string `json:"output"`
+}

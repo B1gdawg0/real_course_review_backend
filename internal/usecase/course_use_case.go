@@ -1,7 +1,11 @@
 package usecase
 
 import (
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"math"
+	"net/http"
 	"sort"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
@@ -14,10 +18,11 @@ import (
 type courseUseCase struct {
 	repo      repo.CourseRepository
 	reviewRepo repo.ReviewRepository
+	n8nBaseURL string
 }
 
-func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewRepository) CourseUseCase {
-	return &courseUseCase{repo: repo, reviewRepo: reviewRepo}
+func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewRepository, n8nBaseURL string) CourseUseCase {
+	return &courseUseCase{repo: repo, reviewRepo: reviewRepo, n8nBaseURL: n8nBaseURL}
 }
 
 func (c *courseUseCase) GetAll(page, size int) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
@@ -270,4 +275,34 @@ func (c *courseUseCase) mapTagsToDTO(tags []model.Tag) []dtos.TagResponse {
         }
     }
     return tagDtos
+}
+
+func (c *courseUseCase) GetAISummaryWithN8N(firstCourseId, secondCourseId string) (*dtos.CourseAISummaryResponse, error) {
+    payload := map[string]string{
+        "class-id-1": firstCourseId,
+        "class-id-2": secondCourseId,
+    }
+
+    jsonPayload, err := json.Marshal(payload)
+    if err != nil {
+        return nil, err
+    }
+
+    res, err := http.Post(c.n8nBaseURL+"/compare", "application/json", bytes.NewBuffer(jsonPayload))
+    if err != nil {
+        return nil, err
+    }
+    defer res.Body.Close()
+
+    if res.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("failed to call n8n webhook: %s", res.Status)
+    }
+
+    // FIX: Decode into a single object, not a slice
+    var response dtos.CourseAISummaryResponse
+    if err := json.NewDecoder(res.Body).Decode(&response); err != nil {
+        return nil, fmt.Errorf("decode error: %w", err)
+    }
+
+    return &response, nil
 }

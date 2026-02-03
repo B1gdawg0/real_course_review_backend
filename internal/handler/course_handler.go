@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
@@ -64,4 +65,25 @@ func (ch *CourseHandler) CompareCourseByIds(c *fiber.Ctx) error {
 
 	data, err := ch.cc.CompareCoursesById(userId, first, second)
 	return dtos.Respond(c, data, err)
+}
+
+func (ch *CourseHandler) GetAISummary(c *fiber.Ctx) error {
+	first := c.Params("first")
+	second := c.Params("second")
+
+	if first == "" || second == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "both course IDs must be provided")
+	}
+
+	data, err := ch.cc.GetAISummaryWithN8N(first, second)
+    
+    if err != nil {
+        return dtos.Respond(c, dtos.CourseAISummaryResponse{}, err)
+    }
+
+    if data == nil {
+        return dtos.Respond(c, dtos.CourseAISummaryResponse{}, errors.New("no data returned"))
+    }
+
+    return dtos.Respond(c, *data, nil)
 }

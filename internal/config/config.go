@@ -15,6 +15,7 @@ func Load() (*m.Config){
         DB_PASSWORD:getEnv("DB_PASSWORD"),
         DB_NAME:    getEnv("DB_NAME"),
 		JWT_SECRET: getEnv("JWT_SECRET"),
+		N8N_BASE_URL: getEnv("N8N_BASE_URL"),
     }
 }
 

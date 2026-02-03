@@ -31,7 +31,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	courseRepo := repo.NewClassRepository(db)
 	reviewRepo := repo.NewReviewRepository(db)
 
-	courseUC := uc.NewCourseUseCase(courseRepo, reviewRepo)
+	courseUC := uc.NewCourseUseCase(courseRepo, reviewRepo, cfg.N8N_BASE_URL)
 	courseHDL := hdl.NewClassHandler(courseUC)
 	
 	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
@@ -55,6 +55,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	course := api.Group("/course")
 	course.Get("", courseHDL.GetCourses)
 	course.Get("/compare/:first/:second", courseHDL.CompareCourseByIds)
+	course.Get("/summary/:first/:second", courseHDL.GetAISummary)
 
 	prof := api.Group("/professor")
 	prof.Get("",profHDL.GetAllOrOne)

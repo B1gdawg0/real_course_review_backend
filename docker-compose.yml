@@ -28,6 +28,7 @@ services:
       DB_NAME: ${DB_NAME}
       PORT: ${PORT}
       JWT_SECRET: ${JWT_SECRET}
+      N8N_BASE_URL: ${N8N_BASE_URL}
     depends_on:
       db:
         condition: service_healthy

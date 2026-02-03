@@ -67,3 +67,9 @@ func (v *VoteRepo) UpdateVote(userid string, reviewid string, vote int) error {
 		Where("user_id = ? AND review_id = ?", userid, reviewid).
 		Update("vote", vote).Error
 }
+
+func (r *VoteRepo) DeleteVote(userID, reviewID string) error {
+    return r.db.
+        Where("user_id = ? AND review_id = ?", userID, reviewID).
+        Delete(&m.Vote{}).Error
+}
