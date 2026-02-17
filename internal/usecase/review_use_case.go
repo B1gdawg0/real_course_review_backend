@@ -124,7 +124,7 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
         Status:      review.Status,
         Description: review.Description,
         AvgRate:     review.AvgRate,
-        Score:       review.Score,
+        Score:       review.DecayedScore, // magic happened at query level
         ReportCount: review.ReportCount,
         IsAnonymous: review.IsAnonymous,
         Tags:        r.mapTagsToDTO(review.Tags), // Updated to handle normalized tags
@@ -190,6 +190,33 @@ func (r *reviewUseCase) getReviews(
 
     return reviewDtos, page, size, total, totalPages, nil
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // func (r *reviewUseCase) AddTagsToReview(reviewID string, tagIDs []string) error {
 //     return r.repo.AddTagsToReview(reviewID, tagIDs)

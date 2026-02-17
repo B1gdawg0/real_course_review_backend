@@ -34,6 +34,7 @@ func (r *reviewRepo) GetReviewsByCourseId(userid string, id string, limit, offse
 
 func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset int) ([]m.Review, error) {
     var reviews []m.Review
+    decayExpr := `reviews.score / (1.0 + (EXTRACT(EPOCH FROM (NOW() - reviews.created_at)) / 86400.0) / 180.0) AS decayed_score`
 
     query := r.db.
         Preload("Tags").
@@ -44,20 +45,21 @@ func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset
             reviews.*,
             COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
             COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count,
-            MAX(CASE WHEN votes.user_id = ? THEN votes.vote ELSE NULL END) AS user_vote
-        `, userID)
+            MAX(CASE WHEN votes.user_id = ? THEN votes.vote ELSE NULL END) AS user_vote,
+        `+decayExpr, userID)
     } else {
         query = query.Select(`
             reviews.*,
             COALESCE(SUM(CASE WHEN votes.vote = 1 THEN 1 ELSE 0 END), 0) AS up_count,
-            COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count
-        `)
+            COALESCE(SUM(CASE WHEN votes.vote = -1 THEN 1 ELSE 0 END), 0) AS down_count,
+        `+decayExpr)
     }
 
     err := query.
         Joins("LEFT JOIN votes ON votes.review_id = reviews.id").
         Where("reviews."+field+" = ?", id).
         Group("reviews.id").
+        Order("decayed_score DESC"). // we applied wilson here
         Limit(limit).
         Offset(offset).
         Find(&reviews).Error
@@ -135,4 +137,8 @@ func (r *reviewRepo) GetHotReviewsByCourseID(userid string, id string, limit, of
 			Find(&reviews).Error
 
 		return reviews, err
+}
+
+func (r *reviewRepo) UpdateScoreForReview(id string, score float64) error {
+	return r.db.Model(&m.Review{}).Where("id = ?", id).Update("score", score).Error 
 }

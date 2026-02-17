@@ -12,10 +12,11 @@ type Review struct {
 
 	AvgRate     float64 `gorm:"column:avg_rate"`
 	Score       float64 `gorm:"column:score;default:0"`
+	DecayedScore float64 `gorm:"column:decayed_score;->;-:migration"`
 
-	UpCount     int `gorm:"default:0"`
-	DownCount   int `gorm:"default:0"`
-	UserVote  *int  `gorm:"column:user_vote"`
+	UpCount   int `gorm:"->;-:migration"`
+	DownCount int `gorm:"->;-:migration"`
+	UserVote  *int  `gorm:"column:user_vote"` // plan to ->;-:migration his ass but not sure so gotta leave it like this for now
 	ReportCount int `gorm:"default:0"`
 	IsAnonymous bool `gorm:"default:false"`
 
