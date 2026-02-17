@@ -63,3 +63,17 @@ func ReviewCountToString(r dtos.ReviewCountResponse) string {
 		r.Quality,
 	)
 }
+
+func ParseCommaSeparated(s string) []string {
+    if s == "" {
+        return nil
+    }
+    parts := strings.Split(s, ",")
+    result := make([]string, 0, len(parts))
+    for _, p := range parts {
+        if trimmed := strings.TrimSpace(p); trimmed != "" {
+            result = append(result, trimmed)
+        }
+    }
+    return result
+}

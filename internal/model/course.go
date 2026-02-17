@@ -22,3 +22,9 @@ type Course struct {
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
+
+type CourseFilter struct {
+    Semester   string
+    CourseType string
+    TagIDs     []string
+}

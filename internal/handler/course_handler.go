@@ -5,7 +5,9 @@ import (
 	"strconv"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
+	"github.com/B1gdawg0/real_course_review_backend/internal/model"
 	uc "github.com/B1gdawg0/real_course_review_backend/internal/usecase"
+	"github.com/B1gdawg0/real_course_review_backend/internal/utils"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -23,6 +25,12 @@ func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	size, _ := strconv.Atoi(c.Query("size", "10"))
 
+	filter := model.CourseFilter{
+		Semester:   c.Query("semester"),
+        CourseType: c.Query("course_type"),
+        TagIDs:     utils.ParseCommaSeparated(c.Query("tag_ids")),
+	}
+
 	if id != "" && keyword != "" {
 		return fiber.NewError(fiber.StatusBadRequest, "cannot use both 'id' and 'q' together")
 	}
@@ -36,7 +44,7 @@ func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
 		page, _ := strconv.Atoi(c.Query("page", "1"))
 		size, _ := strconv.Atoi(c.Query("size", "10"))
 
-		data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size)
+		data, page, size, total, totalPages, err := ch.cc.Search(keyword, page, size, filter)
 		return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
 			Page:       page,
 			PageSize:   size,
@@ -45,7 +53,7 @@ func (ch *CourseHandler) GetCourses(c *fiber.Ctx) error {
 		})
 	}
 
-	data, page, size, total, totalPages, err := ch.cc.GetAll(page, size)
+	data, page, size, total, totalPages, err := ch.cc.GetAll(page, size, filter)
 	return dtos.RespondWithMeta(c, data, err, dtos.PaginatedResponse{
 		Page:       page,
 		PageSize:   size,

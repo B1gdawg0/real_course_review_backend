@@ -25,10 +25,10 @@ func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewReposito
 	return &courseUseCase{repo: repo, reviewRepo: reviewRepo, n8nBaseURL: n8nBaseURL}
 }
 
-func (c *courseUseCase) GetAll(page, size int) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
+func (c *courseUseCase) GetAll(page, size int, filter model.CourseFilter) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
 	page, size, _ = c.validatePagination(page, size)
 
-	entities, err := c.repo.GetAll()
+	entities, err := c.repo.GetAll(filter)
 	if err != nil {
 		return nil, 0, 0, 0, 0, err
 	}
@@ -109,9 +109,6 @@ func (c *courseUseCase) CompareCoursesById(userId, first, second string) ([]dtos
 		res2.Tag = course2.Tags
 	}
 
-	res1.AISummary = "This is not implemented yet. AI summary supposed to return summary of course 1."
-	res2.AISummary = "This is not implemented yet. AI summary supposed to return summary of course 2."
-
 	res1.RawContent = dtos.RawCourseResponse{
 		ID:          course1.ID,
 		Name:        course1.Name,
@@ -135,7 +132,7 @@ func (c *courseUseCase) CompareCoursesById(userId, first, second string) ([]dtos
 	}
 
 	res1.HotPicks = []dtos.ReviewShortResponse{}
-	hotReviews1, err := c.reviewRepo.GetHotReviewsByCourseID(userId, first, 1, 0)
+	hotReviews1, err := c.reviewRepo.GetReviewsByCourseId(userId, first, 1, 0)
 	if err != nil {
 		return nil, err
 	}
@@ -218,16 +215,17 @@ func (c *courseUseCase) CompareCoursesById(userId, first, second string) ([]dtos
 func (c *courseUseCase) Search(
 	keyword string,
 	page, size int,
+	filter model.CourseFilter,
 ) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
 
 	page, size, offset := c.validatePagination(page, size)
 
-	entities, err := c.repo.Search(keyword, size, offset)
+	entities, err := c.repo.Search(keyword, size, offset, filter)
 	if err != nil {
 		return nil, 0, 0, 0, 0, err
 	}
 
-	total, err := c.repo.CountSearch(keyword)
+	total, err := c.repo.CountSearch(keyword, filter)
 	if err != nil {
 		return nil, 0, 0, 0, 0, err
 	}

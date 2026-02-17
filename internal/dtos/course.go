@@ -26,7 +26,6 @@ type CourseCompareResponse struct {
 	TotalReviewCount int                   `json:"total_review_count"`
 	Rate             RatingResponse        `json:"rating"`
 	Tag              []TagResponse         `json:"tags"`
-	AISummary        string                `json:"ai_summary"`
 	HotPicks         []ReviewShortResponse `json:"hot_picks"`
 	RawContent       RawCourseResponse     `json:"raw_content"`
 }

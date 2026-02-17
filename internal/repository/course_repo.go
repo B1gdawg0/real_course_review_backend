@@ -17,10 +17,28 @@ func NewClassRepository(db *gorm.DB) CourseRepository {
 	}
 }
 
-func (c *courseRepo) GetAll() ([]m.Course, error) {
-    var courses []m.Course
-    err := c.db.Preload("Tags").Find(&courses).Error
-    return courses, err
+func applyFilters(db *gorm.DB, f m.CourseFilter) *gorm.DB {
+    if f.Semester != "" {
+        db = db.Where("semester = ?", f.Semester)
+    }
+    if f.CourseType != "" {
+        db = db.Where("course_type = ?", f.CourseType)
+    }
+    if len(f.TagIDs) > 0 {
+        db = db.
+            Joins("JOIN course_tags ON course_tags.course_id = courses.id").
+            Where("course_tags.tag_id IN ?", f.TagIDs).
+            Group("courses.id").
+            Having("COUNT(DISTINCT course_tags.tag_id) = ?", len(f.TagIDs))
+    }
+    return db
+}
+
+func (c *courseRepo) GetAll(filter m.CourseFilter) ([]m.Course, error) {
+	var courses []m.Course
+	err := applyFilters(c.db.Preload("Tags"), filter).
+		Find(&courses).Error
+	return courses, err
 }
 
 func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
@@ -29,60 +47,57 @@ func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
 	return &course, err
 }
 
-func (c *courseRepo) Search(q string, limit int, offset int) ([]m.Course, error) {
-    var courses []m.Course
-    if q == "" {
-        return courses, nil
-    }
-    
-    searchPattern := "%" + q + "%"
-    isNumeric := regexp.MustCompile(`^\d+$`).MatchString(q)
-    
-    if isNumeric {
-        err := c.db.
-            Preload("Tags").
-            Where("name ILIKE ? OR code ILIKE ? OR description ILIKE ?", 
-                searchPattern, searchPattern, searchPattern).
-            Order("score DESC").
-            Limit(limit).
-            Offset(offset).
-            Find(&courses).Error
-        return courses, err
-    }
 
-    err := c.db.
-        Preload("Tags").
-        Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?", 
-            q, searchPattern, searchPattern).
-        Order(gorm.Expr("ts_rank(fts, plainto_tsquery('english', ?)) DESC, score DESC", q)).
-        Limit(limit).
-        Offset(offset).
-        Find(&courses).Error
-    
-    return courses, err
+func (c *courseRepo) Search(q string, limit, offset int, filter m.CourseFilter) ([]m.Course, error) {
+	var courses []m.Course
+	if q == "" {
+		return courses, nil
+	}
+	searchPattern := "%" + q + "%"
+	isNumeric := regexp.MustCompile(`^\d+$`).MatchString(q)
+
+	base := applyFilters(c.db.Preload("Tags"), filter)
+
+	if isNumeric {
+		err := base.
+			Where("name ILIKE ? OR code ILIKE ? OR description ILIKE ?",
+				searchPattern, searchPattern, searchPattern).
+			Order("score DESC").
+			Limit(limit).Offset(offset).
+			Find(&courses).Error
+		return courses, err
+	}
+
+	err := base.
+		Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?",
+			q, searchPattern, searchPattern).
+		Order(gorm.Expr("ts_rank(fts, plainto_tsquery('english', ?)) DESC, score DESC", q)).
+		Limit(limit).Offset(offset).
+		Find(&courses).Error
+	return courses, err
 }
 
-func (r *courseRepo) CountSearch(q string) (int64, error) {
-    if q == "" {
-        return 0, nil
-    }
-    
-    var count int64
-    searchPattern := "%" + q + "%"
-    isNumeric := regexp.MustCompile(`^\d+$`).MatchString(q)
-    
-    if isNumeric {
-        err := r.db.Model(&m.Course{}).
-            Where("name ILIKE ? OR code ILIKE ? OR description ILIKE ?", 
-                searchPattern, searchPattern, searchPattern).
-            Count(&count).Error
-        return count, err
-    }
+func (r *courseRepo) CountSearch(q string, filter m.CourseFilter) (int64, error) {
+	if q == "" {
+		return 0, nil
+	}
+	var count int64
+	searchPattern := "%" + q + "%"
+	isNumeric := regexp.MustCompile(`^\d+$`).MatchString(q)
 
-    err := r.db.Model(&m.Course{}).
-        Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?", 
-            q, searchPattern, searchPattern).
-        Count(&count).Error
-    
-    return count, err
+	base := applyFilters(r.db.Model(&m.Course{}), filter)
+
+	if isNumeric {
+		err := base.
+			Where("name ILIKE ? OR code ILIKE ? OR description ILIKE ?",
+				searchPattern, searchPattern, searchPattern).
+			Count(&count).Error
+		return count, err
+	}
+
+	err := base.
+		Where("fts @@ plainto_tsquery('english', ?) OR name ILIKE ? OR code ILIKE ?",
+			q, searchPattern, searchPattern).
+		Count(&count).Error
+	return count, err
 }
