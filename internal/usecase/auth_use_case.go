@@ -51,7 +51,7 @@ func (u *authUsecase) LoginOrRegister(req *dtos.AuthRequest) (*dtos.AuthResponse
 
 	resp := &dtos.AuthResponse{
 		Token: tokenString,
-		User:  dtos.UserShortResponse{ID: user.ID, Name: user.Name},
+		User:  dtos.UserShortResponse{ID: user.ID, Name: user.Name, Role: user.Role},
 	}
 	return resp, nil
 }
