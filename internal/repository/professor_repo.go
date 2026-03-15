@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -39,4 +40,31 @@ func (p *profRepo) GetProfessorById(id string) (*m.Professor, error) {
     }
     
     return &prof, nil
+}
+
+func (p *profRepo) GetExistingProfessorIDs(ids []string) ([]string, error) {
+	var existing []string
+
+	if len(ids) == 0 {
+		return existing, nil
+	}
+
+	// filter valid uuid only
+	var validIDs []string
+	for _, id := range ids {
+		if _, err := uuid.Parse(id); err == nil {
+			validIDs = append(validIDs, id)
+		}
+	}
+
+	if len(validIDs) == 0 {
+		return existing, nil
+	}
+
+	err := p.db.
+		Model(&m.Professor{}).
+		Where("id IN ?", validIDs).
+		Pluck("id", &existing).Error
+
+	return existing, err
 }

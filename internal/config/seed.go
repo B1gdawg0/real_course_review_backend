@@ -119,6 +119,7 @@ func Seed(db *gorm.DB) {
 				Professors:  []m.Professor{john},
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				RecStatus:   false,
 			},
 
 			// ===== CORE COURSES =====
@@ -279,6 +280,7 @@ func Seed(db *gorm.DB) {
 				Professors:  []m.Professor{emily},
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				RecStatus:   false,
 			},
 			{
 				Name:        "Operating Systems",

@@ -28,7 +28,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	courseRepo := repo.NewClassRepository(db)
 	reviewRepo := repo.NewReviewRepository(db)
 
-	courseUC := uc.NewCourseUseCase(courseRepo, reviewRepo, cfg.N8N_BASE_URL)
+	courseUC := uc.NewCourseUseCase(courseRepo, reviewRepo, profRepo, cfg.N8N_BASE_URL)
 	courseHDL := hdl.NewClassHandler(courseUC)
 	
 	reviewUC := uc.NewReviewUseCase(reviewRepo, courseRepo)
@@ -69,6 +69,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 
 	course.Put("", courseHDL.UpdateCourseRecStatus)
+	course.Post("/import", courseHDL.ImportCourses)
 
 	vote.Post("", voteHDL.Vote)
 

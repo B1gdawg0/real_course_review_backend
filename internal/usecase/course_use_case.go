@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
 	"github.com/B1gdawg0/real_course_review_backend/internal/model"
@@ -17,11 +19,12 @@ import (
 type courseUseCase struct {
 	repo       repo.CourseRepository
 	reviewRepo repo.ReviewRepository
+	profRepo   repo.ProfessorRepository
 	n8nBaseURL string
 }
 
-func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewRepository, n8nBaseURL string) CourseUseCase {
-	return &courseUseCase{repo: repo, reviewRepo: reviewRepo, n8nBaseURL: n8nBaseURL}
+func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewRepository, profRepo repo.ProfessorRepository, n8nBaseURL string) CourseUseCase {
+	return &courseUseCase{repo: repo, reviewRepo: reviewRepo, profRepo: profRepo, n8nBaseURL: n8nBaseURL}
 }
 
 func (c *courseUseCase) GetAll(page, size int, filter model.CourseFilter) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
@@ -303,4 +306,102 @@ func (c *courseUseCase) GetAISummaryWithN8N(firstCourseId, secondCourseId string
 
 func (c *courseUseCase) UpdateCourseRecStatus(id string, recStatus bool) error {
 	return c.repo.UpdateCourseRecStatus(id, recStatus)
+}
+
+func (c *courseUseCase) BulkCreateCourses(rows [][]string) (*dtos.BulkCreateCoursesResponse, error) {
+	var response dtos.BulkCreateCoursesResponse
+	var courses []model.Course
+
+	profSet := map[string]struct{}{}
+
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+
+		if len(row) < 8 {
+			return nil, fmt.Errorf("row %d: not enough columns", i+1)
+		}
+
+		profs := strings.Split(row[7], ";")
+
+		for _, id := range profs {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+			profSet[id] = struct{}{}
+		}
+	}
+
+	var allProfIDs []string
+	for id := range profSet {
+		allProfIDs = append(allProfIDs, id)
+	}
+
+	existingIDs, err := c.profRepo.GetExistingProfessorIDs(allProfIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	existMap := map[string]bool{}
+	for _, id := range existingIDs {
+		existMap[id] = true
+	}
+
+	for i, row := range rows {
+		if i == 0 {
+			continue
+		}
+
+		credit, err := strconv.Atoi(row[3])
+		if err != nil {
+			return nil, fmt.Errorf("row %d: invalid credit value", i+1)
+		}
+
+		course := model.Course{
+			Name:        row[0],
+			Code:        row[1],
+			Description: row[2],
+			Credit:      credit,
+			CourseType:  row[4],
+			Semester:    row[5],
+			RecStatus:   row[6] == "true",
+		}
+
+		profs := strings.Split(row[7], ";")
+
+		rowValid := true
+
+		for _, id := range profs {
+			id = strings.TrimSpace(id)
+			if id == "" {
+				continue
+			}
+
+			if !existMap[id] {
+				rowValid = false
+				response.FailedCount++
+				response.FailedRows = append(response.FailedRows, i+1)
+				break
+			}
+
+			course.Professors = append(course.Professors, model.Professor{ID: id})
+		}
+
+		if !rowValid {
+			continue
+		}
+
+		courses = append(courses, course)
+		response.SuccessCount++
+	}
+
+	if len(courses) > 0 {
+		if err := c.repo.BulkCreateCourses(courses); err != nil {
+			return nil, err
+		}
+	}
+
+	return &response, nil
 }

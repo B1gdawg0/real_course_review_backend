@@ -127,3 +127,25 @@ func (c *courseRepo) UpdateCourseRecStatus(id string, recStatus bool) error {
 		Update("rec_status", recStatus).
 		Error
 }
+
+func (c *courseRepo) BulkCreateCourses(courses []m.Course) error {
+	tx := c.db.Begin()
+
+	if err := tx.Create(&courses).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for i := range courses {
+		if len(courses[i].Professors) > 0 {
+			if err := tx.Model(&courses[i]).
+				Association("Professors").
+				Append(courses[i].Professors); err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	}
+
+	return tx.Commit().Error
+}

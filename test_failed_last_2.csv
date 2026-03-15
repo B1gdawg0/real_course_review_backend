@@ -1,0 +1,15 @@
+name,code,description,credit,course_type,semester,rec_status,professors
+Introduction to Quantum Computing,MIT6.001,Foundations of quantum algorithms and qubits,3,ELECTIVE_SPECIALIZED,1/2025,true,f73868a5-5cd5-459d-8ec1-0a25231d56a5
+Computational Neuroscience,MIT6.002,Neural computation and brain-inspired models,3,ELECTIVE_SPECIALIZED,1/2025,true,bafd1d08-9c29-453d-987f-9e47e2317194
+Advanced Robotics Systems,MIT6.003,Design and control of autonomous robots,3,REQUIRED_SPECIALIZED,2/2025,true,dfdb4304-b3cc-4356-894c-33344b65871d
+Distributed Cloud Systems,MIT6.004,Scalable distributed architectures and cloud computing,3,REQUIRED_SPECIALIZED,2/2025,true,f73868a5-5cd5-459d-8ec1-0a25231d56a5;bafd1d08-9c29-453d-987f-9e47e2317194
+Artificial General Intelligence,MIT6.005,Exploration of AGI concepts and architectures,3,ELECTIVE_SPECIALIZED,1/2025,true,bafd1d08-9c29-453d-987f-9e47e2317194;dfdb4304-b3cc-4356-894c-33344b65871d
+Secure Systems Engineering,MIT6.006,Design of secure and resilient systems,3,REQUIRED_SPECIALIZED,2/2025,true,f73868a5-5cd5-459d-8ec1-0a25231d56a5
+Human-AI Interaction,MIT6.007,Designing interfaces for human-AI collaboration,3,ELECTIVE_SPECIALIZED,1/2025,true,bafd1d08-9c29-453d-987f-9e47e2317194
+Edge Computing Architectures,MIT6.008,Computation and storage at the network edge,3,ELECTIVE_SPECIALIZED,2/2025,true,dfdb4304-b3cc-4356-894c-33344b65871d
+Autonomous Vehicle Software,MIT6.009,Software stacks for autonomous driving systems,3,REQUIRED_SPECIALIZED,1/2025,true,f73868a5-5cd5-459d-8ec1-0a25231d56a5;dfdb4304-b3cc-4356-894c-33344b65871d
+Data-Centric Machine Learning,MIT6.010,Building ML systems focusing on data quality,3,ELECTIVE_SPECIALIZED,2/2025,true,bafd1d08-9c29-453d-987f-9e47e2317194
+Quantum Machine Learning,MIT6.011,Combining quantum computing with machine learning,3,ELECTIVE_SPECIALIZED,1/2025,true,not-existing-prof-id
+AI Safety Engineering,MIT6.012,Engineering practices for safe AI systems,3,ELECTIVE_SPECIALIZED,2/2025,true,f73868a5-5cd5-459d-8ec1-0a25231d56a5;fake-prof-id
+Next Generation Databases,MIT6.013,Modern distributed and scalable database systems,3,REQUIRED_SPECIALIZED,1/2025,true,
+

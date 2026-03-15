@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/csv"
 	"errors"
 	"strconv"
 
@@ -109,4 +110,35 @@ func (ch *CourseHandler) UpdateCourseRecStatus(c *fiber.Ctx) error {
 
 	err := ch.cc.UpdateCourseRecStatus(req.ID, req.RecStatus)
 	return dtos.RespondNoContent(c, err)
+}
+
+func (ch *CourseHandler) ImportCourses(c *fiber.Ctx) error {
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can update course recommendation status")
+	}
+	
+	file, err := c.FormFile("file")
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "file is required",
+		})
+	}
+
+	f, err := file.Open()
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	reader := csv.NewReader(f)
+
+	rows, err := reader.ReadAll()
+	if err != nil {
+		return err
+	}
+
+	res, err := ch.cc.BulkCreateCourses(rows)
+
+	return dtos.Respond(c, res, err)
 }

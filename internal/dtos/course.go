@@ -49,3 +49,9 @@ type UpdateCourseRecStatusRequest struct {
 	ID       string `json:"id" validate:"required"`
 	RecStatus bool   `json:"rec_status" validate:"required"`
 }
+
+type BulkCreateCoursesResponse struct {
+	SuccessCount int      `json:"success_count"`
+	FailedCount  int      `json:"failed_count"`
+	FailedRows   []int    `json:"failed_rows"`
+}

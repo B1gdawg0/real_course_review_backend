@@ -7,4 +7,5 @@ import (
 type ProfessorRepository interface {
 	GetAll() ([]m.Professor, error)
 	GetProfessorById(id string) (*m.Professor,error)
+	GetExistingProfessorIDs(ids []string) ([]string, error)
 }
