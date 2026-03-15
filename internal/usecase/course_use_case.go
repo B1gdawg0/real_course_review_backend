@@ -26,9 +26,9 @@ func NewCourseUseCase(repo repo.CourseRepository, reviewRepo repo.ReviewReposito
 }
 
 func (c *courseUseCase) GetAll(page, size int, filter model.CourseFilter) ([]dtos.CourseShortResponse, int, int, int64, int, error) {
-	page, size, _ = c.validatePagination(page, size)
+	page, size, offset := c.validatePagination(page, size)
 
-	entities, err := c.repo.GetAll(filter)
+	entities, total, err := c.repo.GetAll(filter, size, offset)
 	if err != nil {
 		return nil, 0, 0, 0, 0, err
 	}
@@ -56,7 +56,6 @@ func (c *courseUseCase) GetAll(page, size int, filter model.CourseFilter) ([]dto
 		return res[i].Score > res[j].Score
 	})
 
-	total := int64(len(res))
 	totalPages := int(math.Ceil(float64(total) / float64(size)))
 
 	return res, page, size, total, totalPages, nil

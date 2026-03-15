@@ -34,11 +34,22 @@ func applyFilters(db *gorm.DB, f m.CourseFilter) *gorm.DB {
     return db
 }
 
-func (c *courseRepo) GetAll(filter m.CourseFilter) ([]m.Course, error) {
+func (c *courseRepo) GetAll(filter m.CourseFilter, limit, offset int) ([]m.Course, int64, error) {
 	var courses []m.Course
+	var total int64
+
+	base := applyFilters(c.db.Model(&m.Course{}), filter)
+
+	if err := base.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
 	err := applyFilters(c.db.Preload("Tags"), filter).
+		Limit(limit).
+		Offset(offset).
 		Find(&courses).Error
-	return courses, err
+
+	return courses, total, err
 }
 
 func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
