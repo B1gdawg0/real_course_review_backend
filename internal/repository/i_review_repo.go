@@ -10,4 +10,5 @@ type ReviewRepository interface {
 	CreateReview(review *m.Review, course *m.Course) error
 	GetHotReviewsByCourseID(userid string, id string, limit, offset int) ([]m.Review, error)
 	UpdateScoreForReview(id string, score float64) error
+	UpdateReviewRecStatus(id string, rec_status bool) error
 }

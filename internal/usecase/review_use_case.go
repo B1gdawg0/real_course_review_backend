@@ -192,6 +192,9 @@ func (r *reviewUseCase) getReviews(
     return reviewDtos, page, size, total, totalPages, nil
 }
 
+func (r *reviewUseCase) UpdateReviewRecStatus(id string, rec_status bool) error {
+    return r.repo.UpdateReviewRecStatus(id, rec_status)
+}
 
 
 

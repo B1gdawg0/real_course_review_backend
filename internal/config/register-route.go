@@ -43,7 +43,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	voteHDL := hdl.NewVoteHandler(voteUC)
 
 	reportRepo := repo.NewReportRepository(db)
-	reportUC := uc.NewReportUseCase(reportRepo)
+	reportUC := uc.NewReportUseCase(reportRepo, reviewRepo)
 	reportHDL := hdl.NewReportHandler(reportUC)
 
 	vote := api.Group("/vote")
@@ -74,6 +74,8 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	vote.Post("", voteHDL.Vote)
 
 	review.Post("", reviewHDL.CreateReview)
+	review.Put("", reviewHDL.UpdateReviewRecStatus)
 	
 	report.Get("", reportHDL.GetAll)
+	report.Put("", reportHDL.SolveReport)
 }

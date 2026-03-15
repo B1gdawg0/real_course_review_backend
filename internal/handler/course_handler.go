@@ -108,6 +108,10 @@ func (ch *CourseHandler) UpdateCourseRecStatus(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
 	}
 
+	if req.ID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "missing required fields")
+	}
+
 	err := ch.cc.UpdateCourseRecStatus(req.ID, req.RecStatus)
 	return dtos.RespondNoContent(c, err)
 }
@@ -117,7 +121,7 @@ func (ch *CourseHandler) ImportCourses(c *fiber.Ctx) error {
 	if role != "ADMIN" {
 		return fiber.NewError(fiber.StatusForbidden, "only admins can update course recommendation status")
 	}
-	
+
 	file, err := c.FormFile("file")
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

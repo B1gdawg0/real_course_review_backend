@@ -17,7 +17,7 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 
 func (r *reviewRepo) VerifyReviewById (id string)(bool, error){
 	var count int64
-    err := r.db.Model(&m.Review{}).Where("id = ?", id).Count(&count).Error
+    err := r.db.Model(&m.Review{}).Where("id = ? and rec_status = ?", id, true).Count(&count).Error
     if err != nil {
         return false, err
     }
@@ -57,7 +57,7 @@ func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset
 
     err := query.
         Joins("LEFT JOIN votes ON votes.review_id = reviews.id").
-        Where("reviews."+field+" = ?", id).
+        Where("reviews."+field+" = ? and reviews.rec_status = ?", id, true).
         Group("reviews.id").
         Order("decayed_score DESC"). // we applied wilson here
         Limit(limit).
@@ -69,7 +69,7 @@ func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset
 
 func (r *reviewRepo) CountReviewsByID(id string, section string) (int64, error) {
 	var count int64
-	err := r.db.Model(&m.Review{}).Where(section+"_id = ?", id).Count(&count).Error
+	err := r.db.Model(&m.Review{}).Where(section+"_id = ? and rec_status = ?", id, true).Count(&count).Error
 	return count, err
 }
 
@@ -129,7 +129,7 @@ func (r *reviewRepo) GetHotReviewsByCourseID(userid string, id string, limit, of
 
 		err := query.
 			Joins("LEFT JOIN votes ON votes.review_id = reviews.id").
-			Where("reviews.course_id = ?", id).
+			Where("reviews.course_id = ? and reviews.rec_status = ?", id, true).
 			Group("reviews.id").
 			Order("interactions DESC").
 			Limit(limit).
@@ -141,4 +141,8 @@ func (r *reviewRepo) GetHotReviewsByCourseID(userid string, id string, limit, of
 
 func (r *reviewRepo) UpdateScoreForReview(id string, score float64) error {
 	return r.db.Model(&m.Review{}).Where("id = ?", id).Update("score", score).Error 
+}
+
+func (r *reviewRepo) UpdateReviewRecStatus(id string, rec_status bool) error {
+    return r.db.Model(&m.Review{}).Where("id = ?", id).Update("rec_status", rec_status).Error
 }

@@ -48,3 +48,8 @@ type CreateReviewRequest struct {
 	Sec			string 			`json:"sec"`
 	IsAnonymous bool           `json:"is_anonymous"`
 }
+
+type UpdateReviewRecStatusRequest struct {
+	ID       string `json:"id" validate:"required"`
+	RecStatus bool   `json:"rec_status" validate:"required"`
+}

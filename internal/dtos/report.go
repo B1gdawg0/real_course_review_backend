@@ -16,3 +16,10 @@ type ReportRequest struct {
 	ReviewID   string `json:"review_id" validate:"required,uuid"`
 	ReportType m.ReportType    `json:"report_type" validate:"required,oneof=1 2 3 4"`
 }
+
+type SolveReportRequest struct {
+	ID       string `json:"id" validate:"required,uuid"`
+	ReviewID string `json:"review_id" validate:"required,uuid"`
+	Action   string `json:"action" validate:"required,oneof=SOLVE REJECT"`
+	Reason   string `json:"reason" validate:"required"`
+}

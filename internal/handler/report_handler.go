@@ -44,3 +44,22 @@ func (rh *ReportHandler) GetAll(c *fiber.Ctx) error {
 	data, err := rh.rc.GetAllReports()
 	return dtos.Respond(c, data, err)
 }
+
+func (rh *ReportHandler) SolveReport(c *fiber.Ctx) error {
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can delete courses")
+	}
+
+	var req dtos.SolveReportRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	if req.ReviewID == "" || req.Reason == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "missing required fields")
+	}
+
+	err := rh.rc.SolveReport(req.ID, req.ReviewID, req.Action, req.Reason)
+	return dtos.RespondNoContent(c, err)
+}

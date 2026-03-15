@@ -67,3 +67,23 @@ func (h *ReviewHandler) CreateReview(c *fiber.Ctx) error {
 
     return dtos.Respond(c,reviewDTO, err)
 }
+
+func (h *ReviewHandler) UpdateReviewRecStatus(c *fiber.Ctx) error {
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can update review recommendation status")
+	}
+
+	var req dtos.UpdateReviewRecStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	if req.ID == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "missing required fields")
+	}
+
+	err := h.rc.UpdateReviewRecStatus(req.ID, req.RecStatus)
+
+	return dtos.RespondNoContent(c, err)
+}

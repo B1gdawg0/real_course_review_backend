@@ -9,10 +9,11 @@ import (
 
 type reportUseCase struct {
 	repo repo.ReportRepository
+	reviewUseCase repo.ReviewRepository
 }
 
-func NewReportUseCase(repo repo.ReportRepository) ReportUseCase {
-	return &reportUseCase{repo: repo}
+func NewReportUseCase(repo repo.ReportRepository, reviewUseCase repo.ReviewRepository) ReportUseCase {
+	return &reportUseCase{repo: repo, reviewUseCase: reviewUseCase}
 }
 
 func (r *reportUseCase) AddReportToReview(rq dtos.ReportRequest) error {
@@ -48,4 +49,24 @@ func (r *reportUseCase) GetAllReports() ([]dtos.ReportShortResponse, error) {
 	}
 
 	return result, nil
+}
+
+func (r *reportUseCase) SolveReport(id string, reviewID string, action string, reason string) error {
+	if action != "SOLVE" && action != "REJECT" {
+		return errors.New("invalid action")
+	}
+
+	if action == "REJECT" {
+		return r.repo.RejectReport(id)
+	}
+
+	if err := r.reviewUseCase.UpdateReviewRecStatus(reviewID, false); err != nil {
+		return err
+	}
+
+	if err := r.repo.SolveReport(reviewID, reason); err != nil {
+		return err
+	}
+
+	return nil
 }
