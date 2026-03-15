@@ -1505,4 +1505,53 @@ func Seed(db *gorm.DB) {
 		}
 
 	}
+
+	// --- Reports ---
+	var reportCount int64
+	db.Model(&m.Report{}).Count(&reportCount)
+	if reportCount == 0 {
+		var users []m.User
+		var reviews []m.Review
+		db.Find(&users)
+		db.Find(&reviews)
+
+		if len(users) >= 2 && len(reviews) >= 3 {
+			reports := []m.Report{
+				{
+					UserID:     users[0].ID,
+					ReviewID:   reviews[0].ID,
+					ReportType: m.Inappropriate,
+				},
+				{
+					UserID:     users[1].ID,
+					ReviewID:   reviews[1].ID,
+					ReportType: m.Misleading,
+				},
+				{
+					UserID:     users[0].ID,
+					ReviewID:   reviews[2].ID,
+					ReportType: m.Spam,
+				},
+				{
+					UserID:     users[1].ID,
+					ReviewID:   reviews[0].ID,
+					ReportType: m.Sensitive,
+				},
+				{
+					UserID:     users[0].ID,
+					ReviewID:   reviews[1].ID,
+					ReportType: m.Inappropriate,
+				},
+			}
+
+			result := db.Create(&reports)
+			if result.Error != nil {
+				fmt.Printf("Error creating reports: %v\n", result.Error)
+			} else {
+				fmt.Printf("Created %d reports\n", len(reports))
+			}
+		} else {
+			log.Println("Not enough users or reviews to seed reports")
+		}
+	}
 }
