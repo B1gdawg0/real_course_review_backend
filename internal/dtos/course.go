@@ -12,7 +12,7 @@ type CourseShortResponse struct {
 	Rate        RatingResponse      `json:"rating"`
 	Tags        []TagResponse       `json:"tags"`
 	AvgRate     float64             `json:"avg_rating_score"`
-	Score       float64             `json:"score"`
+	// Score       float64             `json:"score"`
 }
 
 type CourseFullResponse struct {

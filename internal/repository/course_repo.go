@@ -45,6 +45,11 @@ func (c *courseRepo) GetAll(filter m.CourseFilter, limit, offset int) ([]m.Cours
 	}
 
 	err := applyFilters(c.db.Preload("Tags"), filter).
+        Order(`(
+            COALESCE(NULLIF(split_part(rate, ',', 1), '')::float, 0) +
+            COALESCE(NULLIF(split_part(rate, ',', 2), '')::float, 0) +
+            COALESCE(NULLIF(split_part(rate, ',', 3), '')::float, 0)
+        ) / 3 DESC`).
 		Limit(limit).
 		Offset(offset).
 		Find(&courses).Error

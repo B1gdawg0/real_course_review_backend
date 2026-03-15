@@ -63,7 +63,7 @@ func (p *professorUseCase) GetProfessorById(id string) (*dtos.ProfessorFullRespo
             ReviewCount: utils.ParseReviewCount(course.ReviewCount),
             Rate:        rate,
             AvgRate:     avg,
-            Score:       course.Score,
+            // Score:       course.Score,
             Tags:        mapTagsToDTO(course.Tags),
         })
     }

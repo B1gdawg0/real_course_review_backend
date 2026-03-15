@@ -80,6 +80,7 @@ func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string
 		Grade:       req.Grade,
 		Year:        req.Year,
 		Sec:         req.Sec,
+        IsAnonymous: req.IsAnonymous,
     }
 
     if err := r.repo.CreateReview(review, course); err != nil {

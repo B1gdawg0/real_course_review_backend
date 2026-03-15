@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"sort"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
 	"github.com/B1gdawg0/real_course_review_backend/internal/model"
@@ -51,10 +50,6 @@ func (c *courseUseCase) GetAll(page, size int, filter model.CourseFilter) ([]dto
 		res[i].Rate, res[i].AvgRate = utils.ParseRate(entity.Rate)
 		res[i].ReviewCount = utils.ParseReviewCount(entity.ReviewCount)
 	}
-
-	sort.Slice(res, func(i, j int) bool {
-		return res[i].Score > res[j].Score
-	})
 
 	totalPages := int(math.Ceil(float64(total) / float64(size)))
 

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 ENV=$1
+TARGET=$2
 
 if [[ "$ENV" != "dev" && "$ENV" != "prod" ]]; then
   echo "Error: Please provide environment parameter: dev or prod"
@@ -14,5 +15,14 @@ if [[ ! -f "$ENV_FILE" ]]; then
   exit 1
 fi
 
-echo "Starting docker-compose with environment: $ENV"
-docker compose --env-file "$ENV_FILE" up -d
+COMPOSE_FILE="docker-compose.yml"
+
+if [[ "$TARGET" == "local" ]]; then
+  COMPOSE_FILE="docker-compose.local.yml"
+fi
+
+echo "Starting docker compose with:"
+echo "Environment: $ENV"
+echo "Compose file: $COMPOSE_FILE"
+
+docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d

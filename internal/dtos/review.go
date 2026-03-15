@@ -46,4 +46,5 @@ type CreateReviewRequest struct {
 	Grade       string			`json:"grade"`
 	Year		string 			`json:"year"`
 	Sec			string 			`json:"sec"`
+	IsAnonymous bool           `json:"is_anonymous"`
 }
