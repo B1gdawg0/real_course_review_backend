@@ -9,4 +9,5 @@ type CourseRepository interface {
     Search(q string, limit, offset int, filter m.CourseFilter) ([]m.Course, error)
     CountSearch(q string, filter m.CourseFilter) (int64, error)
     GetCourseById(id string) (*m.Course, error)
+	UpdateCourseRecStatus(id string, recStatus bool) error
 }

@@ -43,6 +43,16 @@ func Seed(db *gorm.DB) {
 				Role:    "USER",
 				UniYear: "2nd Year",
 			},
+			{
+				Name:    "AdminB",
+				Email:   "lerdphipat.k@ku.th",
+				Role:    "ADMIN",
+			},
+			{
+				Name:    "AdminA",
+				Email:   "pinpawat.something@ku.th",
+				Role:    "ADMIN",
+			},
 		}
 		db.Create(&users)
 	}

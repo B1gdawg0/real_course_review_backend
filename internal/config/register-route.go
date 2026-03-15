@@ -68,6 +68,8 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	// -- after this line, jwt token required --
 	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))
 
+	course.Put("", courseHDL.UpdateCourseRecStatus)
+
 	vote.Post("", voteHDL.Vote)
 
 	review.Post("", reviewHDL.CreateReview)

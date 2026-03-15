@@ -18,6 +18,8 @@ func NewClassRepository(db *gorm.DB) CourseRepository {
 }
 
 func applyFilters(db *gorm.DB, f m.CourseFilter) *gorm.DB {
+    db = db.Where("rec_status = ?", true)
+
     if f.Semester != "" {
         db = db.Where("semester = ?", f.Semester)
     }
@@ -59,7 +61,7 @@ func (c *courseRepo) GetAll(filter m.CourseFilter, limit, offset int) ([]m.Cours
 
 func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
 	var course m.Course
-	err := c.db.Preload("Tags").Preload("Professors").Where("id = ?", id).First(&course).Error
+	err := c.db.Preload("Tags").Preload("Professors").Where("id = ? AND rec_status = ?", id, true).First(&course).Error
 	return &course, err
 }
 
@@ -116,4 +118,12 @@ func (r *courseRepo) CountSearch(q string, filter m.CourseFilter) (int64, error)
 			q, searchPattern, searchPattern).
 		Count(&count).Error
 	return count, err
+}
+
+func (c *courseRepo) UpdateCourseRecStatus(id string, recStatus bool) error {
+	return c.db.
+		Model(&m.Course{}).
+		Where("id = ?", id).
+		Update("rec_status", recStatus).
+		Error
 }

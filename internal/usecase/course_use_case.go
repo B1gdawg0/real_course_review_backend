@@ -300,3 +300,7 @@ func (c *courseUseCase) GetAISummaryWithN8N(firstCourseId, secondCourseId string
 
     return &response, nil
 }
+
+func (c *courseUseCase) UpdateCourseRecStatus(id string, recStatus bool) error {
+	return c.repo.UpdateCourseRecStatus(id, recStatus)
+}

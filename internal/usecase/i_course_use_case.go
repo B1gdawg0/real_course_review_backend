@@ -11,4 +11,5 @@ type CourseUseCase interface {
 	Search(q string, limit, offset int, filter m.CourseFilter) ([]dtos.CourseShortResponse, int, int, int64, int, error)
 	CompareCoursesById(userId, first, second string) ([]dtos.CourseCompareResponse, error)
 	GetAISummaryWithN8N(firstCourseId, secondCourseId string) (*dtos.CourseAISummaryResponse, error)
+	UpdateCourseRecStatus(id string, recStatus bool) error
 }

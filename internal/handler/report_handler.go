@@ -36,12 +36,10 @@ func (rh *ReportHandler) CreateReport(c *fiber.Ctx) error {
 }
 
 func (rh *ReportHandler) GetAll(c *fiber.Ctx) error {
-	// id := c.Query("id")
-
-	// if id != "" {
-	// 	data, err := ch.cc.GetCourseById(id)
-	// 	return dtos.Respond(c, data, err)
-	// }
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can delete courses")
+	}
 
 	data, err := rh.rc.GetAllReports()
 	return dtos.Respond(c, data, err)

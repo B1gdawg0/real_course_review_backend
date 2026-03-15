@@ -76,3 +76,12 @@ func RespondWithMeta[T any](c *fiber.Ctx, data T, err error, meta any) error {
 	response := WrapResultWithMeta(data, err, meta)
 	return c.Status(statusCode).JSON(response)
 }
+
+func RespondNoContent(c *fiber.Ctx, err error) error {
+	if err != nil {
+		statusCode := HTTPStatusFromError(err)
+		response := WrapResult[any](nil, err)
+		return c.Status(statusCode).JSON(response)
+	}
+	return c.SendStatus(http.StatusNoContent)
+}

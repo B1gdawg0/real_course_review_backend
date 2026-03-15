@@ -44,3 +44,8 @@ type RawCourseResponse struct {
 type CourseAISummaryResponse struct {
 	Output string `json:"output"`
 }
+
+type UpdateCourseRecStatusRequest struct {
+	ID       string `json:"id" validate:"required"`
+	RecStatus bool   `json:"rec_status" validate:"required"`
+}

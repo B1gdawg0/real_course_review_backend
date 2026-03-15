@@ -95,3 +95,18 @@ func (ch *CourseHandler) GetAISummary(c *fiber.Ctx) error {
 
     return dtos.Respond(c, *data, nil)
 }
+
+func (ch *CourseHandler) UpdateCourseRecStatus(c *fiber.Ctx) error {
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can update course recommendation status")
+	}
+
+	var req dtos.UpdateCourseRecStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	err := ch.cc.UpdateCourseRecStatus(req.ID, req.RecStatus)
+	return dtos.RespondNoContent(c, err)
+}

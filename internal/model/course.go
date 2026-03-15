@@ -13,6 +13,7 @@ type Course struct {
 	ReviewCount string  `gorm:"column:review_count;default:0"`
 	Rate        string  `gorm:"column:rate;default:0"`
 	Score       float64 `gorm:"column:score;default:0"`
+	RecStatus      bool	`gorm:"column:rec_status;default:true"`
 
 	FTS string `gorm:"column:fts;type:tsvector;index:,type:gin"`
 
