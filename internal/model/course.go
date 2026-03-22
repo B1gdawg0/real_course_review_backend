@@ -7,7 +7,7 @@ type Course struct {
 	Name        string  `gorm:"column:name;not null"`
 	Description string  `gorm:"column:description;type:text"`
 	Semester    string  `gorm:"column:semester;not null"`
-	Code        string  `gorm:"column:code;uniqueIndex;not null"`
+	Code        string  `gorm:"column:code;not null"`
 	Credit      int     `gorm:"column:credit;not null"`
 	CourseType  string  `gorm:"column:course_type;not null;default:'ELECTIVE_SPECIALIZED'"`
 	ReviewCount string  `gorm:"column:review_count;default:0"`
