@@ -19,9 +19,11 @@ classDiagram
         +String Semester
         +String Code
         +Integer Credit
+        +String CourseType
         +String ReviewCount
         +String Rate
         +Float Score
+        +Boolean RecStatus
         +String FTS
         +DateTime CreatedAt
         +DateTime UpdatedAt
@@ -48,14 +50,16 @@ classDiagram
         +String Description
         +Float AvgRate
         +Float Score
+        +Float DecayedScore
         +Integer UpCount
         +Integer DownCount
-        +Integer UserVote
+        +Integer? UserVote
         +Integer ReportCount
         +Boolean IsAnonymous
         +String Grade
         +String Year
         +String Sec
+        +Boolean RecStatus
         +String Rate
         +DateTime CreatedAt
         +DateTime UpdatedAt
@@ -81,7 +85,9 @@ classDiagram
         +UUID ID
         +UUID UserID
         +UUID ReviewID
-        +Integer ReportType
+        +ReportType ReportType
+        +Boolean RecStatus
+        +String SolveReason
         +DateTime CreatedAt
         +DateTime UpdatedAt
     }
@@ -94,11 +100,6 @@ classDiagram
     class ReviewTag {
         +UUID ReviewID
         +UUID TagID
-    }
-
-    class CourseProfessor {
-        +UUID CourseID
-        +UUID ProfessorID
     }
 
     %% User Relationships
@@ -123,9 +124,6 @@ classDiagram
     Review "1" --> "0..*" ReviewTag : ""
     Tag "1" --> "0..*" ReviewTag : ""
     
-    Course "1" --> "0..*" CourseProfessor : ""
-    Professor "1" --> "0..*" CourseProfessor : ""
-
     %% Vote and Report References
     Vote --> User : voted by
     Vote --> Review : on
@@ -145,8 +143,9 @@ classDiagram
 
 ### Course
 - รายวิชาในระบบ
-- มีข้อมูล Code, Credit, Semester
+- มีข้อมูล Code, Credit, Semester, CourseType
 - คำนวณคะแนนเฉลี่ย (Rate) และจำนวนรีวิว (ReviewCount)
+- มีสถานะการแนะนำวิชา (RecStatus)
 - มี Full Text Search (FTS) สำหรับการค้นหา
 
 ### Professor
@@ -157,9 +156,10 @@ classDiagram
 ### Review
 - รีวิวของวิชาที่เขียนโดยผู้ใช้
 - มีคะแนนเฉลี่ย (AvgRate) จาก Rate (Happiness, Easiness, Quality)
-- มีระบบ Vote (UpCount, DownCount)
+- มีระบบ Vote (UpCount, DownCount, UserVote)
+- รองรับคะแนนที่ใช้จัดอันดับตามเวลา (DecayedScore)
 - สามารถตั้งค่าเป็นไม่เปิดเผยตัวตน (IsAnonymous)
-- มีสถานะ (publish, ban, delete, hidden)
+- มีสถานะเนื้อหา (publish, ban, delete, hidden) และสถานะการแนะนำ (RecStatus)
 
 ### Tag
 - แท็กสำหรับจัดหมวดหมู่ Course และ Review
@@ -172,11 +172,11 @@ classDiagram
 ### Report
 - การรายงานรีวิวที่ไม่เหมาะสม
 - มี ReportType เพื่อระบุประเภทการรายงาน (1-4)
+- มีสถานะการจัดการรายงาน (RecStatus) และเหตุผลการปิดรายงาน (SolveReason)
 
 ### Junction Tables
 - **CourseTag**: เชื่อม Course กับ Tag (Many-to-Many)
 - **ReviewTag**: เชื่อม Review กับ Tag (Many-to-Many)
-- **CourseProfessor**: เชื่อม Course กับ Professor (Many-to-Many)
 
 ---
 

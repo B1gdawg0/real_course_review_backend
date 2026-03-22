@@ -35,7 +35,7 @@
 | **Usecase Name** | ดูรายวิชาทั้งหมด |
 | **Actor** | ผู้ใช้งาน |
 | **Pre-Condition** | - ผู้ใช้ Login เข้าสู่ระบบแล้ว (มี JWT Token) |
-| **Post-Condition** | - แสดงรายวิชาทั้งหมดพร้อม Tags, Rate, Review Count<br>- รายวิชาถูกเรียงลำดับตาม Score |
+| **Post-Condition** | - แสดงรายวิชาทั้งหมดพร้อม Tags, Rate, Review Count<br>- รองรับ Pagination และ Filter (semester, course_type, tag_ids) |
 
 | **Normal Flow** | |
 |-----------------|---|
@@ -43,9 +43,8 @@
 | 1. ผู้ใช้เข้าสู่หน้า Home | |
 | | 2. ระบบดึงข้อมูลรายวิชาทั้งหมด<br>`courseRepo.GetAll()`<br>`SELECT * FROM courses`<br>`LEFT JOIN course_tags`<br>`LEFT JOIN tags` |
 | | 3. ระบบคำนวณ Rate และ Score<br>`utils.ParseRate(entity.Rate)`<br>`utils.ParseReviewCount(entity.ReviewCount)` |
-| | 4. ระบบเรียงลำดับตาม Score<br>`sort.Slice(res, func(i, j int) bool { return res[i].Score > res[j].Score })` |
-| | 5. ระบบส่งข้อมูลพร้อม Pagination<br>`Return CourseShortResponse[], page, size, total, totalPages` |
-| 6. ผู้ใช้เห็นรายวิชาทั้งหมดพร้อม Tags และ Rate | |
+| | 4. ระบบส่งข้อมูลพร้อม Pagination<br>`Return CourseShortResponse[], page, size, total, totalPages` |
+| 5. ผู้ใช้เห็นรายวิชาทั้งหมดพร้อม Tags และ Rate | |
 
 ---
 
@@ -89,9 +88,9 @@
 | 1. ผู้ใช้คลิกที่รายวิชาที่สนใจ | |
 | | 2. ระบบดึงข้อมูลรายวิชาตาม ID<br>`courseRepo.GetCourseById(id)`<br>`SELECT * FROM courses WHERE id = ?`<br>`PRELOAD professors, tags` |
 | | 3. ระบบคำนวณ Rate และ Review Count<br>`utils.ParseRate(entity.Rate)`<br>`utils.ParseReviewCount(entity.ReviewCount)` |
-| | 4. ระบบดึงรีวิวตาม Course ID<br>`reviewRepo.GetReviewsByCourseId(userId, courseId, page, size)`<br>`SELECT * FROM reviews WHERE course_id = ?`<br>`LEFT JOIN users, tags, votes`<br>`ORDER BY score DESC` |
+| | 4. ระบบดึงรีวิวตาม Course ID<br>`reviewRepo.GetReviewsByCourseId(userId, courseId, page, size)`<br>`SELECT * FROM reviews WHERE course_id = ?`<br>`LEFT JOIN users, tags, votes`<br>`ORDER BY decayed_score DESC` |
 | | 5. ระบบคำนวณ AvgRate และสถานะการ Vote ของผู้ใช้<br>`Map to DTO (calculate AvgRate, user vote status)` |
-| | 6. ระบบส่งข้อมูลรายวิชาพร้อมรีวิว<br>`Return { course: CourseFullResponse, reviews: ReviewFullResponse[], page, size, total, totalPages }` |
+| | 6. ระบบส่งข้อมูลรายวิชาและรีวิวแยกตาม endpoint<br>`Return CourseFullResponse` และ `ReviewFullResponse[], page, size, total, totalPages` |
 | 7. ผู้ใช้เห็นรายละเอียดวิชาพร้อมอาจารย์ผู้สอน, Tags และรีวิวทั้งหมด | |
 
 | **Alternative Flow** | |
@@ -134,7 +133,7 @@
 | **Usecase Name** | เขียนรีวิววิชา |
 | **Actor** | ผู้ใช้งาน |
 | **Pre-Condition** | - ผู้ใช้ Login เข้าสู่ระบบแล้ว<br>- อยู่ในหน้ารายละเอียดวิชา |
-| **Post-Condition** | - รีวิวถูกบันทึกในระบบ<br>- คะแนนเฉลี่ยของวิชาถูกอัพเดท<br>- จำนวนรีวิวของวิชาเพิ่มขึ้น |
+| **Post-Condition** | - รีวิวถูกบันทึกในระบบ<br>- คะแนนเฉลี่ยของวิชาถูกอัพเดท<br>- จำนวนรีวิวของวิชาเพิ่มขึ้น<br>- ระบบคำนวณคะแนนรีวิว (score/decayed score) สำหรับการจัดอันดับ |
 
 | **Normal Flow** | |
 |-----------------|---|
@@ -171,17 +170,19 @@
 | | 2. ระบบตรวจสอบว่าผู้ใช้มีอยู่ในระบบ<br>`authRepo.VerifyUserById(userId)`<br>`SELECT EXISTS(SELECT 1 FROM users WHERE id = ?)` |
 | | 3. ระบบตรวจสอบว่ารีวิวมีอยู่ในระบบ<br>`reviewRepo.VerifyReviewById(reviewId)`<br>`SELECT EXISTS(SELECT 1 FROM reviews WHERE id = ?)` |
 | | 4. ระบบตรวจสอบว่าผู้ใช้เคย Vote รีวิวนี้หรือไม่<br>`voteRepo.GetVoteByUserAndReviewId(userId, reviewId)`<br>`SELECT * FROM votes WHERE user_id = ? AND review_id = ?` |
-| | 5a. ถ้าเคย Vote แล้ว และเป็น Vote เดิม:<br>แสดง Error "can't vote the same vote" |
+| | 5a. ถ้าเคย Vote แล้ว และเป็น Vote เดิม:<br>`voteRepo.DeleteVote(userId, reviewId)`<br>`DELETE FROM votes WHERE user_id = ? AND review_id = ?` (toggle off) |
 | | 5b. ถ้าเคย Vote แล้ว แต่เป็น Vote ตรงข้าม:<br>`voteRepo.UpdateVote(userId, reviewId, vote)`<br>`UPDATE votes SET vote = ? WHERE user_id = ? AND review_id = ?` |
 | | 5c. ถ้ายังไม่เคย Vote:<br>`voteRepo.AddVoteToReview(userId, reviewId, vote)`<br>`INSERT INTO votes (user_id, review_id, vote)` |
-| | 6. ระบบส่งสถานะสำเร็จกลับไป |
-| 7. ผู้ใช้เห็น UI แสดงสถานะ Vote ที่อัพเดทแล้ว | |
+| | 6. ระบบคำนวณคะแนนรีวิวใหม่จากจำนวนโหวต<br>`voteRepo.GetVotesByReviewId(reviewId)` + `utils.WilsonScoreFromVotes(up, down)` |
+| | 7. ระบบอัพเดท score ของรีวิว<br>`reviewRepo.UpdateScoreForReview(reviewId, score)` |
+| | 8. ระบบส่งสถานะสำเร็จกลับไป |
+| 9. ผู้ใช้เห็น UI แสดงสถานะ Vote ที่อัพเดทแล้ว | |
 
 | **Alternative Flow** | |
 |---------------------|---|
 | **2a. ผู้ใช้ไม่พบในระบบ** | ระบบแสดง Error "user not found" |
 | **3a. รีวิวไม่พบในระบบ** | ระบบแสดง Error "review not found" |
-| **5a. Vote ซ้ำ** | ระบบแสดง Error "can't vote the same vote" |
+| **1a. vote ไม่ใช่ 1 หรือ -1** | ระบบแสดง Error "invalid vote value" |
 
 ---
 
@@ -219,13 +220,15 @@
 | 1. ผู้ใช้กดปุ่ม "รายงาน" ที่รีวิว | |
 | 2. ผู้ใช้เลือกประเภทการรายงาน (ReportType 1-4) | |
 | 3. ผู้ใช้กดยืนยันการรายงาน | |
-| | 4. ระบบบันทึกการรายงานและอัพเดทจำนวน Report<br>`reportRepo.AddReportToReview(req)`<br>`INSERT INTO reports (user_id, review_id, reason)`<br>`UPDATE reviews SET report_count = report_count + 1` |
-| | 5. ระบบส่งสถานะสำเร็จกลับไป |
-| 6. ผู้ใช้เห็นข้อความ "รายงานสำเร็จ" | |
+| | 4. ระบบตรวจสอบประเภทการรายงานว่าอยู่ในช่วง 1-4<br>`if rq.ReportType < 1 || rq.ReportType > 4` |
+| | 5. ระบบบันทึกการรายงานและอัพเดทจำนวน Report<br>`reportRepo.AddReportToReview(req)`<br>`INSERT INTO reports (user_id, review_id, reason)`<br>`UPDATE reviews SET report_count = report_count + 1` |
+| | 6. ระบบส่งสถานะสำเร็จกลับไป |
+| 7. ผู้ใช้เห็นข้อความ "รายงานสำเร็จ" | |
 
 | **Alternative Flow** | |
 |---------------------|---|
 | **3a. ไม่ระบุ Review ID** | ระบบแสดง Error "missing required fields" |
+| **4a. ReportType ไม่ถูกต้อง** | ระบบแสดง Error "invalid report type" |
 
 ---
 
