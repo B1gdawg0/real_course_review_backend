@@ -50,7 +50,7 @@ func Seed(db *gorm.DB) {
 			},
 			{
 				Name:    "AdminA",
-				Email:   "pinpawat.something@ku.th",
+				Email:   "pinpawat.l@ku.th",
 				Role:    "ADMIN",
 			},
 		}
