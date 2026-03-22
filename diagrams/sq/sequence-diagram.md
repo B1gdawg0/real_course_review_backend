@@ -251,7 +251,12 @@ participant DB as ฐานข้อมูล (Database)
     UseCase->>VoteRepo: voteRepo.GetVoteByUserAndReviewId(userId, reviewId)
     VoteRepo->>DB: SELECT * FROM votes<br/>WHERE user_id = ? AND review_id = ?
     DB-->>VoteRepo: Return Vote หรือ nil
-    alt มี Vote อยู่แล้ว
+    alt มี Vote อยู่แล้วและค่าโหวตเท่าเดิม
+        VoteRepo-->>UseCase: Return Existing Vote
+        UseCase->>VoteRepo: voteRepo.DeleteVote(userId, reviewId)
+        VoteRepo->>DB: DELETE FROM votes<br/>WHERE user_id = ? AND review_id = ?
+        DB-->>VoteRepo: Vote Deleted
+    else มี Vote อยู่แล้วแต่คนละค่า
         VoteRepo-->>UseCase: Return Existing Vote
         UseCase->>VoteRepo: voteRepo.UpdateVote(userId, reviewId, vote)
         VoteRepo->>DB: UPDATE votes SET vote = ?<br/>WHERE user_id = ? AND review_id = ?
@@ -262,7 +267,13 @@ participant DB as ฐานข้อมูล (Database)
         VoteRepo->>DB: INSERT INTO votes (user_id, review_id, vote)
         DB-->>VoteRepo: Vote Created
     end
-    VoteRepo-->>UseCase: Success
+    UseCase->>VoteRepo: voteRepo.GetVotesByReviewId(reviewId)
+    VoteRepo->>DB: SELECT count(*) FILTER (vote = 1/-1)
+    DB-->>VoteRepo: upCount, downCount
+    UseCase->>UseCase: utils.WilsonScoreFromVotes(up, down)
+    UseCase->>ReviewRepo: reviewRepo.UpdateScoreForReview(reviewId, score)
+    ReviewRepo->>DB: UPDATE reviews SET score = ? WHERE id = ?
+    DB-->>ReviewRepo: Review Score Updated
     UseCase-->>Handler: Return Success
     Handler-->>UI: Return JSON (200 OK)
     UI-->>User: อัพเดท UI แสดงสถานะ Vote
@@ -313,7 +324,6 @@ participant DB as ฐานข้อมูล (Database)
     Handler->>UseCase: tagUseCase.GetTagById(id)<br/>หรือ tagUseCase.GetAll()
     UseCase->>Repo: tagRepo.GetTagById(id)<br/>หรือ tagRepo.GetAll()
     Repo->>DB: SELECT * FROM tags<br/>WHERE id = ? หรือ SELECT * FROM tags
-    DB-->>Repo: Return Tag(s)
     Repo-->>UseCase: Return Tag(s)
     UseCase-->>Handler: Return TagResponse
     Handler-->>UI: Return JSON (200 OK)
@@ -338,11 +348,50 @@ participant DB as ฐานข้อมูล (Database)
     User->>UI: รายงานรีวิวที่ไม่เหมาะสม
     UI->>Handler: POST /api/v1/report<br/>(with JWT Token, reviewId, reason)
     Handler->>UseCase: reportUseCase.AddReportToReview(req)
-    UseCase->>Repo: reportRepo.AddReportToReview(req)
-    Repo->>DB: INSERT INTO reports (user_id, review_id, reason)<br/>UPDATE reviews SET report_count = report_count + 1
-    DB-->>Repo: Report Created
-    Repo-->>UseCase: Success
-    UseCase-->>Handler: Success
-    Handler-->>UI: Return JSON (200 OK)
-    UI-->>User: แสดงข้อความ "รายงานสำเร็จ"
+    UseCase->>UseCase: Validate report type (1-4)
+    alt ReportType ไม่ถูกต้อง
+        UseCase-->>Handler: Error "invalid report type"
+        Handler-->>UI: Return JSON (400)
+    else ReportType ถูกต้อง
+        UseCase->>Repo: reportRepo.AddReportToReview(req)
+        Repo->>DB: INSERT reports + UPDATE reviews.report_count
+        DB-->>Repo: Report Created
+        Repo-->>UseCase: Success
+        UseCase-->>Handler: Success
+        Handler-->>UI: Return JSON (200 OK)
+        UI-->>User: แสดงข้อความ "รายงานสำเร็จ"
+    end
+```
+
+---
+
+## 12. Admin Flow - Get All Reports
+**หน้าบ้าน:** Admin Report Management Page
+
+```mermaid
+sequenceDiagram
+autonumber
+actor Admin as ผู้ดูแลระบบ (Admin)
+participant UI as หน้าเว็บไซต์ (Frontend)
+participant Handler as ReportHandler
+participant UseCase as ReportUseCase
+participant Repo as ReportRepository
+participant DB as ฐานข้อมูล (Database)
+
+    Admin->>UI: เข้าสู่หน้าจัดการรายงาน
+    UI->>Handler: GET /api/v1/report<br/>(with JWT role=ADMIN)
+    Handler->>Handler: Validate role == ADMIN
+    alt ไม่ใช่ ADMIN
+        Handler-->>UI: Return JSON (403 Forbidden)
+        UI-->>Admin: แจ้งเตือนไม่มีสิทธิ์เข้าถึง
+    else เป็น ADMIN
+        Handler->>UseCase: reportUseCase.GetAllReports()
+        UseCase->>Repo: reportRepo.GetAllReports()
+        Repo->>DB: SELECT * FROM reports<br/>LEFT JOIN users, reviews
+        DB-->>Repo: Report Entities
+        Repo-->>UseCase: Return Report List
+        UseCase-->>Handler: ReportShortResponse[]
+        Handler-->>UI: Return JSON (200 OK)
+        UI-->>Admin: แสดงรายการรายงานทั้งหมด
+    end
 ```
