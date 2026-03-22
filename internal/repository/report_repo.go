@@ -31,7 +31,7 @@ func (r *reportRepo) AddReportToReview(userid string, reviewid string, report m.
 
 func (r *reportRepo) GetAllReports() ([]m.Report, error) {
 	var report []m.Report
-	err := r.db.Where("rec_status = ?", true).Find(&report).Error
+	err := r.db.Where("rec_status = ?", true).Preload("Review.Course").Find(&report).Error
 	return report, err
 }
 

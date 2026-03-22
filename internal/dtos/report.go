@@ -8,6 +8,10 @@ type ReportShortResponse struct {
 	UserID     string `json:"user_id"`
 	ReportType int    `json:"report_type"`
 	ReportMessage string    `json:"report_message"`
+
+	CourseID   string `json:"course_id"`
+    CourseName string `json:"course_name"`
+
 	CreatedAt  string `json:"created_at"`
 }
 
