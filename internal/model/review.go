@@ -16,7 +16,7 @@ type Review struct {
 
 	UpCount   int `gorm:"->;-:migration"`
 	DownCount int `gorm:"->;-:migration"`
-	UserVote  *int  `gorm:"column:user_vote"` // plan to ->;-:migration his ass but not sure so gotta leave it like this for now
+	UserVote  *int  `gorm:"->;-:migration;column:user_vote"` // plan to ->;-:migration his ass but not sure so gotta leave it like this for now
 	ReportCount int `gorm:"default:0"`
 	IsAnonymous bool `gorm:"default:false"`
 

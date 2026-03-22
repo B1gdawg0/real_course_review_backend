@@ -45,21 +45,24 @@ func (v *VoteRepo) AddVoteToReview(userid string, reviewid string, vote int) err
 }
 
 func (v *VoteRepo) GetVotesByReviewId(id string) (int, int, error) {
-	var result struct {
-		Upvotes   int
-		Downvotes int
-	}
+    var result struct {
+        Upvotes   int
+        Downvotes int
+    }
 
-	err := v.db.Model(&m.Vote{}).
-		Select("SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END) as upvotes, SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END) as downvotes").
-		Where("review_id = ?", id).
-		Scan(&result).Error
+    err := v.db.Model(&m.Vote{}).
+        Select(`
+            COALESCE(SUM(CASE WHEN vote = 1 THEN 1 ELSE 0 END), 0) as upvotes,
+            COALESCE(SUM(CASE WHEN vote = -1 THEN 1 ELSE 0 END), 0) as downvotes
+        `).
+        Where("review_id = ?", id).
+        Scan(&result).Error
 
-	if err != nil {
-		return 0, 0, err
-	}
+    if err != nil {
+        return 0, 0, err
+    }
 
-	return result.Upvotes, result.Downvotes, nil
+    return result.Upvotes, result.Downvotes, nil
 }
 
 func (v *VoteRepo) UpdateVote(userid string, reviewid string, vote int) error {
@@ -69,7 +72,7 @@ func (v *VoteRepo) UpdateVote(userid string, reviewid string, vote int) error {
 }
 
 func (r *VoteRepo) DeleteVote(userID, reviewID string) error {
-    return r.db.
+    return r.db.Unscoped().
         Where("user_id = ? AND review_id = ?", userID, reviewID).
         Delete(&m.Vote{}).Error
 }

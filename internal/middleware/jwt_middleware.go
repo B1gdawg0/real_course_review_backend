@@ -51,3 +51,40 @@ func JWTMiddleware(secret string) fiber.Handler {
 		return c.Next()
 	}
 }
+
+func OptionalJWTMiddleware(secret string) fiber.Handler {
+    return func(c *fiber.Ctx) error {
+        authHeader := c.Get("Authorization")
+        if authHeader == "" {
+            return c.Next()
+        }
+
+        tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+        if tokenString == authHeader {
+            return c.Next()
+        }
+
+        token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+            if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
+                return nil, fiber.NewError(fiber.StatusUnauthorized, "Unexpected signing method")
+            }
+            return []byte(secret), nil
+        })
+
+        if err != nil || !token.Valid {
+            return c.Next()
+        }
+
+        claims, ok := token.Claims.(jwt.MapClaims)
+        if !ok {
+            return c.Next()
+        }
+
+        // same locals as JWTMiddleware
+        c.Locals("userID", claims["sub"])
+        c.Locals("email", claims["email"])
+        c.Locals("role", claims["role"])
+
+        return c.Next()
+    }
+}

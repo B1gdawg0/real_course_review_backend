@@ -53,17 +53,19 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 	tag := api.Group("/tag")
 	report := api.Group("/report")
 
+	optJWT := middleware.OptionalJWTMiddleware(cfg.JWT_SECRET)
+
 	course.Get("", courseHDL.GetCourses)
-	course.Get("/compare/:first/:second", courseHDL.CompareCourseByIds)
+	course.Get("/compare/:first/:second", optJWT, courseHDL.CompareCourseByIds)
 	course.Get("/summary/:first/:second", courseHDL.GetAISummary)
 
 	prof.Get("",profHDL.GetAllOrOne)
 
-	review.Get("/:filterType/:id", reviewHDL.GetReviews)
+	review.Get("/:filterType/:id", optJWT, reviewHDL.GetReviews)
 
 	tag.Get("", tagHDL.GetAllOrOne)
 
-	report.Post("", reportHDL.CreateReport)
+	report.Post("", optJWT, reportHDL.CreateReport)
 
 	// -- after this line, jwt token required --
 	api.Use(middleware.JWTMiddleware(cfg.JWT_SECRET))

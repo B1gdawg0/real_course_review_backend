@@ -15,7 +15,7 @@ func NewReviewRepository(db *gorm.DB) ReviewRepository {
 	}
 }
 
-func (r *reviewRepo) VerifyReviewById (id string)(bool, error){
+func (r *reviewRepo) VerifyReviewById(id string)(bool, error){
 	var count int64
     err := r.db.Model(&m.Review{}).Where("id = ? and rec_status = ?", id, true).Count(&count).Error
     if err != nil {
