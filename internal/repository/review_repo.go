@@ -74,6 +74,15 @@ func (r *reviewRepo) CountReviewsByID(id string, section string) (int64, error) 
 	return count, err
 }
 
+func (r *reviewRepo) GetReviewById(id string) (*m.Review, error) {
+	var review m.Review
+	err := r.db.Preload("Course").Where("id = ?", id).First(&review).Error
+	if err != nil {
+		return nil, err
+	}
+	return &review, nil
+}
+
 func (r *reviewRepo) CreateReview(review *m.Review, course *m.Course) error {
     return r.db.Transaction(func(tx *gorm.DB) error {
         if err := tx.Create(review).Error; err != nil {

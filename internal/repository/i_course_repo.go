@@ -10,5 +10,6 @@ type CourseRepository interface {
     CountSearch(q string, filter m.CourseFilter) (int64, error)
     GetCourseById(id string) (*m.Course, error)
 	UpdateCourseRecStatus(id string, recStatus bool) error
-	BulkCreateCourses(courses []m.Course) error
+	UpdateCourse(course *m.Course) error
+    BulkCreateCourses(courses []m.Course) error
 }

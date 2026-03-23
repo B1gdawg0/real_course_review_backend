@@ -47,7 +47,7 @@ func (c *courseRepo) GetAll(filter m.CourseFilter, limit, offset int) ([]m.Cours
 	}
 
 	err := applyFilters(c.db.Preload("Tags"), filter).
-        Order(`(
+		Order(`(
             COALESCE(NULLIF(split_part(rate, ',', 1), '')::float, 0) +
             COALESCE(NULLIF(split_part(rate, ',', 2), '')::float, 0) +
             COALESCE(NULLIF(split_part(rate, ',', 3), '')::float, 0)
@@ -64,7 +64,6 @@ func (c *courseRepo) GetCourseById(id string) (*m.Course, error) {
 	err := c.db.Preload("Tags").Preload("Professors").Where("id = ? AND rec_status = ?", id, true).First(&course).Error
 	return &course, err
 }
-
 
 func (c *courseRepo) Search(q string, limit, offset int, filter m.CourseFilter) ([]m.Course, error) {
 	var courses []m.Course
@@ -126,6 +125,16 @@ func (c *courseRepo) UpdateCourseRecStatus(id string, recStatus bool) error {
 		Where("id = ?", id).
 		Update("rec_status", recStatus).
 		Error
+}
+
+func (c *courseRepo) UpdateCourse(course *m.Course) error {
+	return c.db.Model(&m.Course{}).
+		Where("id = ?", course.ID).
+		Select("rate", "review_count").
+		Updates(map[string]interface{}{
+			"rate":         course.Rate,
+			"review_count": course.ReviewCount,
+		}).Error
 }
 
 func (c *courseRepo) BulkCreateCourses(courses []m.Course) error {

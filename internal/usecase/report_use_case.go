@@ -5,15 +5,17 @@ import (
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
 	repo "github.com/B1gdawg0/real_course_review_backend/internal/repository"
+	"github.com/B1gdawg0/real_course_review_backend/internal/utils"
 )
 
 type reportUseCase struct {
 	repo repo.ReportRepository
 	reviewUseCase repo.ReviewRepository
+	courseUseCase repo.CourseRepository
 }
 
-func NewReportUseCase(repo repo.ReportRepository, reviewUseCase repo.ReviewRepository) ReportUseCase {
-	return &reportUseCase{repo: repo, reviewUseCase: reviewUseCase}
+func NewReportUseCase(repo repo.ReportRepository, reviewUseCase repo.ReviewRepository, courseUseCase repo.CourseRepository) ReportUseCase {
+	return &reportUseCase{repo: repo, reviewUseCase: reviewUseCase, courseUseCase: courseUseCase}
 }
 
 func (r *reportUseCase) AddReportToReview(rq dtos.ReportRequest) error {
@@ -69,6 +71,20 @@ func (r *reportUseCase) SolveReport(id string, reviewID string, action string, r
 	}
 
 	if err := r.repo.SolveReport(reviewID, reason); err != nil {
+		return err
+	}
+
+	review, err := r.reviewUseCase.GetReviewById(reviewID)
+	if err != nil {
+		return err
+	}
+
+	course, err := utils.ReduceRateCourseReview(&review.Course, review)
+	if err != nil {
+		return err
+	}
+
+	if err := r.courseUseCase.UpdateCourse(course); err != nil {
 		return err
 	}
 
