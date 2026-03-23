@@ -7,6 +7,7 @@ type Report struct {
 	UserID     string     `gorm:"type:uuid;not null;index"`
 	ReviewID   string     `gorm:"type:uuid;not null;index"`
 	ReportType ReportType `gorm:"type:int;not null;check:report_type IN (1,2,3,4)"`
+	Reason     string     `gorm:"type:text;not null"`
 
 	User   	   User   	  `gorm:"foreignKey:UserID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Review     Review 	  `gorm:"foreignKey:ReviewID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`

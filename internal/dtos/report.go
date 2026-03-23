@@ -8,6 +8,7 @@ type ReportShortResponse struct {
 	UserID     string `json:"user_id"`
 	ReportType int    `json:"report_type"`
 	ReportMessage string    `json:"report_message"`
+	ReportReason string `json:"reason" validate:"required"`
 
 	CourseID   string `json:"course_id"`
     CourseName string `json:"course_name"`
@@ -19,6 +20,7 @@ type ReportRequest struct {
 	UserID 	   string `json:"user_id,omitempty"`
 	ReviewID   string `json:"review_id" validate:"required,uuid"`
 	ReportType m.ReportType    `json:"report_type" validate:"required,oneof=1 2 3 4"`
+	ReportReason string `json:"reason" validate:"required"`
 }
 
 type SolveReportRequest struct {

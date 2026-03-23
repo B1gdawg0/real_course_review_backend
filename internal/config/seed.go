@@ -1165,26 +1165,31 @@ func Seed(db *gorm.DB) {
 					UserID:     users[0].ID,
 					ReviewID:   reviews[0].ID,
 					ReportType: m.Inappropriate,
+					Reason:    "This review contains offensive language.",
 				},
 				{
 					UserID:     users[1].ID,
 					ReviewID:   reviews[1].ID,
 					ReportType: m.Misleading,
+					Reason:    "This review is misleading.",
 				},
 				{
 					UserID:     users[0].ID,
 					ReviewID:   reviews[2].ID,
 					ReportType: m.Spam,
+					Reason:    "This review is spam.",
 				},
 				{
 					UserID:     users[1].ID,
 					ReviewID:   reviews[0].ID,
 					ReportType: m.Sensitive,
+					Reason:    "This review contains sensitive content.",
 				},
 				{
 					UserID:     users[0].ID,
 					ReviewID:   reviews[1].ID,
 					ReportType: m.Inappropriate,
+					Reason:    "This review contains inappropriate content.",
 				},
 			}
 

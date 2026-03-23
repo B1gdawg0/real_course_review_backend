@@ -23,7 +23,7 @@ func (r *reportUseCase) AddReportToReview(rq dtos.ReportRequest) error {
 		return errors.New("invalid report type")
 	}
 
-	if err := r.repo.AddReportToReview(rq.UserID, rq.ReviewID, rq.ReportType); err != nil {
+	if err := r.repo.AddReportToReview(rq.UserID, rq.ReviewID, rq.ReportType, rq.ReportReason); err != nil {
 		return err
 	}
 
@@ -47,6 +47,7 @@ func (r *reportUseCase) GetAllReports() ([]dtos.ReportShortResponse, error) {
 			ReportType: int(rep.ReportType),
 			CourseID:   rep.Review.CourseID,
 			CourseName: rep.Review.Course.Name,
+			ReportReason: rep.Reason,
 			CreatedAt: rep.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}

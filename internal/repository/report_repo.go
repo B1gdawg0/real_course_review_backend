@@ -15,11 +15,12 @@ func NewReportRepository(db *gorm.DB) ReportRepository {
 	}
 }
 
-func (r *reportRepo) AddReportToReview(userid string, reviewid string, report m.ReportType) error {
+func (r *reportRepo) AddReportToReview(userid string, reviewid string, report m.ReportType, reason string) error {
 	newReport := m.Report{
 		UserID:     userid,
 		ReviewID:   reviewid,
 		ReportType: report,
+		Reason:    reason,
 	}
 
 	if err := r.db.Create(&newReport).Error; err != nil {
