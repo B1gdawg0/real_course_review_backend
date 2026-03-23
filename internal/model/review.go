@@ -6,6 +6,7 @@ type Review struct {
 	ID          string  `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	UserID      string  `gorm:"type:uuid;not null;index"`
 	CourseID     string  `gorm:"type:uuid;not null;index"`
+	ProfessorID  string  `gorm:"type:uuid;not null;index"`
 
 	Status      string  `gorm:"type:varchar(20);check:status IN ('ban','publish','delete','hidden');default:'publish'"`
 	Description string  `gorm:"type:text"`
@@ -32,6 +33,7 @@ type Review struct {
 	Votes      []Vote     `gorm:"foreignKey:ReviewID"`
 	Rate	    string   		  `gorm:"column:rate"`
 	Tags        []Tag     `gorm:"many2many:review_tags;"`
+	Professor   Professor `gorm:"foreignKey:ProfessorID;references:ID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	CreatedAt time.Time
 	UpdatedAt time.Time

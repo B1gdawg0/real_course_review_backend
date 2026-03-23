@@ -16,3 +16,8 @@ type ProfessorFullResponse struct {
     Description string `json:"description"`
     Classes []CourseShortResponse `json:"courses"`
 }
+
+type ProfessorNameResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}

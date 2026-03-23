@@ -38,7 +38,8 @@ func (r *reviewRepo) getReviewsWithVotes(field, id, userID string, limit, offset
 
     query := r.db.
         Preload("Tags").
-        Preload("User")
+        Preload("User").
+        Preload("Professor")
 
     if userID != "" {
         query = query.Select(`
@@ -108,7 +109,8 @@ func (r *reviewRepo) GetHotReviewsByCourseID(userid string, id string, limit, of
 
 		query := r.db.
 			Preload("Tags").
-			Preload("User")
+			Preload("User").
+            Preload("Professor")
 
 		if userid != "" {
 			query = query.Select(`

@@ -41,7 +41,7 @@ func (u *authUsecase) LoginOrRegister(req *dtos.AuthRequest) (*dtos.AuthResponse
 		"sub":   user.ID,
 		"email": user.Email,
 		"role":  user.Role,
-		"exp":   time.Now().Add(24 * time.Hour).Unix(),
+		"exp":   time.Now().Add(1000 * time.Hour).Unix(),
 	})
 
 	tokenString, err := token.SignedString([]byte(u.jwtSecret))

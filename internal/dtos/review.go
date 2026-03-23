@@ -17,6 +17,7 @@ type ReviewFullResponse struct {
     User        *UserShortResponse `json:"user,omitempty"`
     Votes       VoteShortReponse   `json:"votes"`
     Rate        RatingResponse     `json:"rating"`
+	Professor   ProfessorNameResponse `json:"professor"`
     CreatedAt   time.Time          `json:"created_at"`
     UpdatedAt   time.Time          `json:"updated_at"`
 }
@@ -33,6 +34,7 @@ type ReviewShortResponse struct {
 	Sec		string         `json:"section_id"`
 	User 	 *UserShortResponse `json:"user,omitempty"`
 	Votes 	VoteShortReponse   `json:"votes"`
+	Professor   ProfessorNameResponse `json:"professor"`
 	CreatedAt   time.Time          `json:"created_at"`
     UpdatedAt   time.Time          `json:"updated_at"`
 }

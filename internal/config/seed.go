@@ -99,9 +99,9 @@ func Seed(db *gorm.DB) {
 	if courseCount == 0 {
 		// fetch professors
 		var john, emily, michael m.Professor
-		db.Where("email = ?", "john.smith@university.edu").First(&john)
-		db.Where("email = ?", "emily.johnson@university.edu").First(&emily)
-		db.Where("email = ?", "michael.brown@university.edu").First(&michael)
+		db.Where("email = ?", "aurawan.i@ku.th").First(&john)
+		db.Where("email = ?", "fscitrb@ku.ac.th").First(&emily)
+		db.Where("email = ?", "nopadon.j@ku.ac.th").First(&michael)
 
 		var courses = []m.Course{
 			{Name: "เทคโนโลยีสารสนเทศเพื่อผู้ประกอบการ", Description: "ระบบคอมพิวเตอร์ อินเทอร์เน็ต เวิลด์ไวด์เว็บ การพัฒนาระบบการจัดการสารสนเทศ การพาณิชย์อิเล็กทรอนิกส์ร้านค้าและการชำระเงินออนไลน์ ซอฟต์แวร์ประยุกต์ การตลาดอิเล็กทรอนิกส์ จริยธรรมและกฎหมายเกี่ยวกับพาณิชย์อิเล็กทรอนิกส์", Semester: "1/2560", Code: "01418102", Credit: 3, CourseType: "ELECTIVE_SPECIALIZED"},
@@ -365,6 +365,11 @@ func Seed(db *gorm.DB) {
 			return
 		}
 
+		var john, emily, michael m.Professor
+		db.Where("email = ?", "aurawan.i@ku.th").First(&john)
+		db.Where("email = ?", "fscitrb@ku.ac.th").First(&emily)
+		db.Where("email = ?", "nopadon.j@ku.ac.th").First(&michael)
+
 		// Create comprehensive reviews for various courses
 		reviews := []m.Review{
 			// ===== Computer Programming I (01418112) =====
@@ -382,6 +387,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -397,6 +403,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -412,6 +419,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now().Add(-24 * time.Hour),
 				UpdatedAt:   time.Now().Add(-24 * time.Hour),
+				ProfessorID: john.ID,
 			},
 
 			// ===== Computer Programming II (01418113) =====
@@ -429,6 +437,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -444,6 +453,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 
 			// ===== Data Structures (01418231) =====
@@ -461,6 +471,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -476,6 +487,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 
 			// ===== Algorithm Design and Analysis (01418232) =====
@@ -493,6 +505,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -508,6 +521,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -523,6 +537,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now().Add(-48 * time.Hour),
 				UpdatedAt:   time.Now().Add(-48 * time.Hour),
+				ProfessorID: john.ID,
 			},
 
 			// ===== Software Construction (01418211) =====
@@ -540,6 +555,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: john.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -555,6 +571,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 
 			// ===== Operating Systems (01418331) =====
@@ -572,6 +589,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -587,6 +605,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -602,6 +621,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now().Add(-72 * time.Hour),
 				UpdatedAt:   time.Now().Add(-72 * time.Hour),
+				ProfessorID: emily.ID,
 			},
 
 			// ===== Database Systems (01418221) =====
@@ -619,6 +639,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -634,6 +655,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 
 			// ===== Computer Networks I (01418351) =====
@@ -651,6 +673,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -666,6 +689,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 
 			// ===== Machine Learning (01418362) =====
@@ -683,6 +707,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -698,6 +723,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 
 			// ===== Web Application Development (01418342) =====
@@ -715,6 +741,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: emily.ID,
 			},
 			{
 				UserID:      users[1].ID,
@@ -730,6 +757,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -745,6 +773,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now().Add(-96 * time.Hour),
 				UpdatedAt:   time.Now().Add(-96 * time.Hour),
+				ProfessorID: michael.ID,
 			},
 
 			// ===== Mobile Application Development (01418421) =====
@@ -762,6 +791,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -777,6 +807,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 
 			// ===== Active Citizenship (01999111) - Gen Ed =====
@@ -794,6 +825,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -809,6 +841,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 
 			// ===== Senior Project (01418499) =====
@@ -826,6 +859,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -841,6 +875,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 
 			// ===== Intelligent Systems (01418321) =====
@@ -858,6 +893,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 
 			// ===== Computer Security (01418451) =====
@@ -875,6 +911,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: false,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 			{
 				UserID:      users[0].ID,
@@ -890,6 +927,7 @@ func Seed(db *gorm.DB) {
 				IsAnonymous: true,
 				CreatedAt:   time.Now(),
 				UpdatedAt:   time.Now(),
+				ProfessorID: michael.ID,
 			},
 		}
 

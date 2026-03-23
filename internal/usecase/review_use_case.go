@@ -81,6 +81,7 @@ func (r *reviewUseCase) CreateReview(req dtos.CreateReviewRequest, userID string
 		Year:        req.Year,
 		Sec:         req.Sec,
         IsAnonymous: req.IsAnonymous,
+        ProfessorID: req.ProfessorID,
     }
 
     if err := r.repo.CreateReview(review, course); err != nil {
@@ -134,6 +135,10 @@ func (r *reviewUseCase) mapReviewToDTO(review m.Review) dtos.ReviewFullResponse 
 		Sec:         review.Sec,
         CreatedAt:   review.CreatedAt,
         UpdatedAt:   review.UpdatedAt,
+        Professor:   dtos.ProfessorNameResponse{
+            ID: review.Professor.ID,
+            Name: review.Professor.Name,
+        },
     }
 
     if !review.IsAnonymous && review.User.ID != "" {
