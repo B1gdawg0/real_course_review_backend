@@ -7,7 +7,7 @@ type ReportShortResponse struct {
 	ReviewID   string `json:"review_id"`
 	UserID     string `json:"user_id"`
 	ReportType int    `json:"report_type"`
-	ReportMessage string    `json:"report_message"`
+	ReviewMessage string `json:"review_message"`
 	ReportReason string `json:"reason" validate:"required"`
 
 	CourseID   string `json:"course_id"`

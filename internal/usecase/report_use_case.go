@@ -43,7 +43,7 @@ func (r *reportUseCase) GetAllReports() ([]dtos.ReportShortResponse, error) {
 			ID:         rep.ID,
 			UserID:     rep.UserID,
 			ReviewID:   rep.ReviewID,
-			ReportMessage: rep.ReportType.String(),
+			ReviewMessage: rep.Review.Description,
 			ReportType: int(rep.ReportType),
 			CourseID:   rep.Review.CourseID,
 			CourseName: rep.Review.Course.Name,
