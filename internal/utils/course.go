@@ -34,6 +34,12 @@ func ReduceRateCourseReview(course *m.Course, review *m.Review) (*m.Course, erro
 	reviewCount.Happiness--
 	reviewCount.Quality--
 
+	if (reviewCount.Easiness == 0) {
+		course.ReviewCount = ReviewCountToString(reviewCount)
+		course.Rate = "0.00,0.00,0.00"
+		return course, nil
+	}
+		
 	rate.Easiness = ((rate.Easiness * float64(reviewCount.Easiness+1)) - dtoReview.Easiness) / float64(reviewCount.Easiness)
 	rate.Happiness = ((rate.Happiness * float64(reviewCount.Happiness+1)) - dtoReview.Happiness) / float64(reviewCount.Happiness)
 	rate.Quality = ((rate.Quality * float64(reviewCount.Quality+1)) - dtoReview.Quality) / float64(reviewCount.Quality)	
