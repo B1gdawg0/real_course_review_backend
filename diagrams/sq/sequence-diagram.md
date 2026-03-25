@@ -104,18 +104,22 @@ participant Handler as CourseHandler
 participant UseCase as CourseUseCase
 participant Repo as CourseRepository
 participant DB as ฐานข้อมูล (Database)
+participant n8n as n8n Workflow
 
     User->>UI: คลิกที่วิชาเพื่อดูรายละเอียด
     UI->>Handler: GET /api/v1/course?id={courseId}<br/>(with JWT Token)
     Handler->>UseCase: courseUseCase.GetCourseById(id)
     UseCase->>Repo: courseRepo.GetCourseById(id)
-    Repo->>DB: SELECT * FROM courses<br/>WHERE id = ?<br/>PRELOAD professors, tags
-    DB-->>Repo: Return Course Entity
+    Repo->>DB: SELECT * FROM courses<br/>WHERE id = ?<br/>PRELOAD professors, tags, reviews
+    DB-->>Repo: Return Course Entity with Reviews
     Repo-->>UseCase: Return Course
     UseCase->>UseCase: Calculate Rate & Review Count
-    UseCase-->>Handler: Return CourseFullResponse
+    UseCase-->>Handler: Return CourseFullResponse (with all reviews)
     Handler-->>UI: Return JSON (200 OK)
-    UI-->>User: แสดงรายละเอียดวิชา (ชื่อ, รายละเอียด, อาจารย์, Rate, Tags)
+    UI->>n8n: POST /webhook/summarize-reviews<br/>(reviews)
+    n8n->>n8n: สรุปรีวิวทั้งหมด
+    n8n-->>UI: Return Review Summary
+    UI-->>User: แสดงรายละเอียดวิชา, สรุปรีวิว, และรีวิวทั้งหมด
 ```
 
 ---
