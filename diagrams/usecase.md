@@ -248,3 +248,37 @@
 | | 2. ระบบดึงรายงานทั้งหมด<br>`reportRepo.GetAllReports()`<br>`SELECT * FROM reports`<br>`LEFT JOIN users, reviews` |
 | | 3. ระบบส่งข้อมูลรายงานกลับไป<br>`Return ReportResponse[]` |
 | 4. Admin เห็นรายงานทั้งหมดพร้อมข้อมูลผู้รายงานและรีวิวที่ถูกรายงาน | |
+
+---
+
+## 11. จัดการรายงาน (Admin)
+
+| **Usecase ID** | UC-011 |
+|----------------|---------|
+| **Usecase Name** | จัดการรายงาน (อนุมัติ/ไม่อนุมัติ) |
+| **Actor** | ผู้ดูแลระบบ (Admin) |
+| **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- มี Report ID ที่ต้องการจัดการ |
+| **Post-Condition** | - สถานะของ Report ถูกเปลี่ยนเป็น `SOLVED` หรือ `REJECTED`<br>- หาก `SOLVED` รีวิวที่ถูกรายงานจะถูกลบ |
+
+| **Normal Flow (Solve)** | |
+|-----------------|---|
+| **Actor** | **System** |
+| 1. Admin กดปุ่ม "Solve" ที่รายงาน | |
+| | 2. ระบบอัพเดทสถานะ Report เป็น `SOLVED`<br>`reportRepo.UpdateReportStatus(reportId, "SOLVED")`<br>`UPDATE reports SET status = 'SOLVED' WHERE id = ?` |
+| | 3. ระบบทำการลบรีวิวที่เกี่ยวข้อง<br>`reviewRepo.DeleteReview(reviewId)`<br>`DELETE FROM reviews WHERE id = ?` |
+| | 4. ระบบส่งสถานะสำเร็จกลับไป |
+| 5. UI อัพเดทสถานะของรายงาน และรีวิวหายไป | |
+
+| **Normal Flow (Reject)** | |
+|-----------------|---|
+| **Actor** | **System** |
+| 1. Admin กดปุ่ม "Reject" ที่รายงาน | |
+| | 2. ระบบอัพเดทสถานะ Report เป็น `REJECTED`<br>`reportRepo.UpdateReportStatus(reportId, "REJECTED")`<br>`UPDATE reports SET status = 'REJECTED' WHERE id = ?` |
+| | 3. ระบบส่งสถานะสำเร็จกลับไป |
+| 4. UI อัพเดทสถานะของรายงาน | |
+
+| **Alternative Flow** | |
+|---------------------|---|
+| **1a. ไม่ใช่ Admin** | ระบบแสดง Error "Forbidden" (403) |
+| **1b. ไม่พบ Report** | ระบบแสดง Error "Report not found" (404) |
+| **3a. ไม่พบ Review ที่จะลบ** | ระบบแสดง Error "Review not found" (404) |

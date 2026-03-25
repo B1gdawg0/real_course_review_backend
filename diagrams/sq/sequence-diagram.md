@@ -395,3 +395,46 @@ participant DB as ฐานข้อมูล (Database)
         UI-->>Admin: แสดงรายการรายงานทั้งหมด
     end
 ```
+
+---
+
+## 13. Admin Flow - Manage Report (Solve/Reject)
+**หน้าบ้าน:** Admin Report Management Page
+
+```mermaid
+sequenceDiagram
+autonumber
+actor Admin as ผู้ดูแลระบบ (Admin)
+participant UI as หน้าเว็บไซต์ (Frontend)
+participant Handler as ReportHandler
+participant UseCase as ReportUseCase
+participant ReportRepo as ReportRepository
+participant ReviewRepo as ReviewRepository
+participant DB as ฐานข้อมูล (Database)
+
+    Admin->>UI: กดปุ่ม "Solve" หรือ "Reject" ที่รายงาน
+    UI->>Handler: PATCH /api/v1/report/{reportId}/{action}<br/>(action: "solve" or "reject")<br/>(with JWT role=ADMIN)
+    Handler->>Handler: Validate role == ADMIN
+    Handler->>UseCase: reportUseCase.ManageReport(reportId, action)
+    UseCase->>ReportRepo: reportRepo.GetReportById(reportId)
+    ReportRepo->>DB: SELECT * FROM reports WHERE id = ?
+    DB-->>ReportRepo: Return Report
+    ReportRepo-->>UseCase: Return Report (with reviewId)
+
+    alt action is "solve"
+        UseCase->>ReportRepo: reportRepo.UpdateReportStatus(reportId, "SOLVED")
+        ReportRepo->>DB: UPDATE reports SET status = 'SOLVED' WHERE id = ?
+        DB-->>ReportRepo: Status Updated
+        UseCase->>ReviewRepo: reviewRepo.DeleteReview(reviewId)
+        ReviewRepo->>DB: DELETE FROM reviews WHERE id = ?
+        DB-->>ReviewRepo: Review Deleted
+    else action is "reject"
+        UseCase->>ReportRepo: reportRepo.UpdateReportStatus(reportId, "REJECTED")
+        ReportRepo->>DB: UPDATE reports SET status = 'REJECTED' WHERE id = ?
+        DB-->>ReportRepo: Status Updated
+    end
+
+    UseCase-->>Handler: Return Success
+    Handler-->>UI: Return JSON (200 OK)
+    UI-->>Admin: อัพเดทสถานะรายงานใน UI
+```

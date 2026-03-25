@@ -46,6 +46,7 @@ classDiagram
         +UUID ID
         +UUID UserID
         +UUID CourseID
+        +UUID ProfessorID
         +String Status
         +String Description
         +Float AvgRate
@@ -86,10 +87,16 @@ classDiagram
         +UUID UserID
         +UUID ReviewID
         +ReportType ReportType
+        +String Reason
         +Boolean RecStatus
         +String SolveReason
         +DateTime CreatedAt
         +DateTime UpdatedAt
+    }
+
+    class CourseProfessor {
+        +UUID CourseID
+        +UUID ProfessorID
     }
 
     class CourseTag {
@@ -109,20 +116,19 @@ classDiagram
 
     %% Course Relationships
     Course "1" --> "0..*" Review : has
-    Course "0..*" --> "0..*" Professor : taught by
-    Course "0..*" --> "0..*" Tag : categorized by
+    Course "1" -- "0..*" CourseProfessor : ""
+    Professor "1" -- "0..*" CourseProfessor : ""
 
     %% Review Relationships
+    Review "1" --> "1" Professor : taught by
     Review "1" --> "0..*" Vote : receives
-    Review "1" --> "0..*" Report : reported by
-    Review "0..*" --> "0..*" Tag : tagged with
+    Review "1" --> "0..*" Report : reported on
+    Review "1" -- "0..*" ReviewTag : ""
+    Tag "1" -- "0..*" ReviewTag : ""
 
-    %% Junction Tables
-    Course "1" --> "0..*" CourseTag : ""
-    Tag "1" --> "0..*" CourseTag : ""
-    
-    Review "1" --> "0..*" ReviewTag : ""
-    Tag "1" --> "0..*" ReviewTag : ""
+    %% Course-Tag Relationship
+    Course "1" -- "0..*" CourseTag : ""
+    Tag "1" -- "0..*" CourseTag : ""
     
     %% Vote and Report References
     Vote --> User : voted by
