@@ -285,32 +285,51 @@
 
 ---
 
-## 12. ปรับสถานะแนะนำรายวิชา (Admin)
+## 12. แก้ไขข้อมูลรายวิชา (Admin)
 
 | **Usecase ID** | UC-012 |
 |----------------|---------|
-| **Usecase Name** | ปรับสถานะแนะนำรายวิชา (เปิด/ปิดการแสดงผล) |
+| **Usecase Name** | แก้ไขข้อมูลรายวิชา (ปรับสถานะแนะนำ + แก้ไขรายละเอียด) |
 | **Actor** | ผู้ดูแลระบบ (Admin) |
 | **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- มี JWT Token ที่ถูกต้อง |
-| **Post-Condition** | - ค่า `rec_status` ของรายวิชาถูกอัพเดทตามที่กำหนด |
+| **Post-Condition** | - ข้อมูลรายวิชาถูกอัพเดทตามที่ขอ (ขึ้นกับ endpoint ที่เรียก):<br>  - ปรับ `rec_status` เพื่อเปิด/ปิดการแสดงผล<br>  - แก้ไขรายละเอียดรายวิชา (และ replace ความสัมพันธ์อาจารย์ถ้าส่ง `professor_ids`) |
 
 | **Normal Flow** | |
 |-----------------|---|
 | **Actor** | **System** |
-| 1. Admin เลือกรายวิชาที่ต้องการปรับสถานะ | |
-| 2. Admin กดเปิด/ปิดสถานะแนะนำ | |
-| | 3. Frontend เรียก `PUT /api/v1/course` พร้อม body `{ id, rec_status }` |
-| | 4. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
-| | 5. ระบบ parse และ validate request body (ต้องมี `id`) |
-| | 6. ระบบอัพเดทสถานะรายวิชา<br>`courseUseCase.UpdateCourseRecStatus(id, recStatus)`<br>`courseRepo.UpdateCourseRecStatus(id, recStatus)`<br>`UPDATE courses SET rec_status = ? WHERE id = ?` |
-| | 7. ระบบตอบกลับสำเร็จ (No Content) |
-| 8. UI อัพเดทสถานะรายวิชา | |
+| 1. Admin เปิดหน้าจอจัดการรายวิชา | |
+| 2. Admin เลือกการแก้ไขที่ต้องการ | |
+| | 3. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
+| 4. ระบบดำเนินการตามประเภทการแก้ไข | |
+
+| **Sub Flow A: ปรับสถานะแนะนำรายวิชา (rec_status)** | |
+|-----------------|---|
+| **Actor** | **System** |
+| A1. Admin กดเปิด/ปิดสถานะแนะนำ | |
+| | A2. Frontend เรียก `PUT /api/v1/course` พร้อม body `{ id, rec_status }` |
+| | A3. ระบบ parse และ validate request body (ต้องมี `id`) |
+| | A4. ระบบอัพเดทสถานะรายวิชา<br>`courseUseCase.UpdateCourseRecStatus(id, recStatus)`<br>`courseRepo.UpdateCourseRecStatus(id, recStatus)`<br>`UPDATE courses SET rec_status = ? WHERE id = ?` |
+| | A5. ระบบตอบกลับสำเร็จ (No Content) |
+
+| **Sub Flow B: แก้ไขรายละเอียดรายวิชาตาม ID** | |
+|-----------------|---|
+| **Actor** | **System** |
+| B1. Admin แก้ไขรายละเอียดและกดบันทึก | |
+| | B2. Frontend เรียก `PUT /api/v1/course/update/{courseId}` พร้อม JSON body (field เป็น optional) |
+| | B3. ระบบ parse request body เป็น `UpdateCourseRequest` |
+| | B4. ระบบอ่านข้อมูลรายวิชาเดิมจากฐานข้อมูล<br>`courseRepo.GetCourseById(courseId)` |
+| | B5. ระบบ apply เฉพาะ field ที่ถูกส่งมา และเตรียมข้อมูล professors ตาม `professor_ids` (ถ้ามี) |
+| | B6. ระบบอัพเดทข้อมูลใน transaction และ replace association ของ professors (ถ้าส่งมา)<br>`courseRepo.UpdateCourseById(courseId, updatedCourse)` |
+| | B7. ระบบตอบกลับสำเร็จ (No Content) |
 
 | **Alternative Flow** | |
 |---------------------|---|
-| **4a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
-| **5a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
-| **5b. ไม่ส่ง `id`** | ระบบตอบกลับ Bad Request (400) |
+| **3a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
+| **A3a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
+| **A3b. ไม่ส่ง `id`** | ระบบตอบกลับ Bad Request (400) |
+| **B2a. ไม่ระบุ courseId ใน path** | ระบบตอบกลับ Bad Request (400) |
+| **B3a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
+| **B4a. ไม่พบรายวิชา/อ่านข้อมูลไม่ได้** | ระบบตอบกลับ Error |
 
 ---
 
@@ -344,35 +363,3 @@
 | **3a. ไม่ส่งไฟล์ `file`** | ระบบตอบกลับ Bad Request (400) และข้อความ "file is required" |
 | **5a. ไฟล์อ่านไม่ได้/CSV parse ไม่ได้** | ระบบตอบกลับ Error |
 | **7a. แถวข้อมูลคอลัมน์ไม่พอ หรือ credit ไม่ใช่ตัวเลข** | ระบบตอบกลับ Error |
-
----
-
-## 14. แก้ไขข้อมูลรายวิชาตาม ID (Admin)
-
-| **Usecase ID** | UC-014 |
-|----------------|---------|
-| **Usecase Name** | แก้ไขข้อมูลรายวิชา (แก้เฉพาะ field ที่ส่งมา) |
-| **Actor** | ผู้ดูแลระบบ (Admin) |
-| **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- ระบุ `courseId` ใน path parameter ได้ถูกต้อง |
-| **Post-Condition** | - ข้อมูลรายวิชาถูกอัพเดทตาม field ที่ส่งมา (name/description/semester/code/credit/course_type)<br>- หากส่ง `professor_ids` ระบบจะ replace ความสัมพันธ์อาจารย์ของรายวิชานั้น |
-
-| **Normal Flow** | |
-|-----------------|---|
-| **Actor** | **System** |
-| 1. Admin เปิดหน้าจอแก้ไขรายวิชา | |
-| 2. Admin แก้ไขข้อมูลและกดบันทึก | |
-| | 3. Frontend เรียก `PUT /api/v1/course/update/{courseId}` พร้อม JSON body (field เป็น optional) |
-| | 4. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
-| | 5. ระบบ parse request body เป็น `UpdateCourseRequest` |
-| | 6. ระบบอ่านข้อมูลรายวิชาเดิมจากฐานข้อมูล<br>`courseRepo.GetCourseById(courseId)` |
-| | 7. ระบบ apply เฉพาะ field ที่ถูกส่งมา และเตรียมข้อมูล professors ตาม `professor_ids` (ถ้ามี) |
-| | 8. ระบบอัพเดทข้อมูลใน transaction และ replace association ของ professors (ถ้าส่งมา)<br>`courseRepo.UpdateCourseById(courseId, updatedCourse)` |
-| | 9. ระบบตอบกลับสำเร็จ (No Content) |
-| 10. UI แสดงผลการบันทึกสำเร็จ | |
-
-| **Alternative Flow** | |
-|---------------------|---|
-| **4a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
-| **5a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
-| **3a. ไม่ระบุ courseId ใน path** | ระบบตอบกลับ Bad Request (400) |
-| **6a. ไม่พบรายวิชา/อ่านข้อมูลไม่ได้** | ระบบตอบกลับ Error |

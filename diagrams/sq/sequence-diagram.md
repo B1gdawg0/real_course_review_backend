@@ -445,7 +445,7 @@ participant DB as ฐานข้อมูล (Database)
 
 ---
 
-## 14. Admin Course Flow - Update Course Recommendation Status
+## 14. Admin Course Flow - Update Course (Status + Detail)
 **หน้าบ้าน:** Admin Course Management Page
 
 ```mermaid
@@ -458,22 +458,45 @@ participant UseCase as CourseUseCase
 participant Repo as CourseRepository
 participant DB as ฐานข้อมูล (Database)
 
-    Admin->>UI: กดเปิด/ปิดสถานะแนะนำรายวิชา
-    UI->>Handler: PUT /api/v1/course<br/>(with JWT role=ADMIN, body: {id, rec_status})
+    Admin->>UI: แก้ไขข้อมูลรายวิชา (ปรับสถานะ/แก้รายละเอียด)
     Handler->>Handler: Validate role == ADMIN
     alt ไม่ใช่ ADMIN
         Handler-->>UI: Return 403 Forbidden
         UI-->>Admin: แจ้งเตือนไม่มีสิทธิ์เข้าถึง
     else เป็น ADMIN
-        Handler->>Handler: Parse & validate body (id required)
-        Handler->>UseCase: courseUseCase.UpdateCourseRecStatus(id, rec_status)
-        UseCase->>Repo: courseRepo.UpdateCourseRecStatus(id, rec_status)
-        Repo->>DB: UPDATE courses SET rec_status = ? WHERE id = ?
-        DB-->>Repo: Updated
-        Repo-->>UseCase: Success
-        UseCase-->>Handler: Success
-        Handler-->>UI: Return 204 No Content
-        UI-->>Admin: อัพเดทสถานะรายวิชาใน UI
+        alt ปรับสถานะแนะนำ (rec_status)
+            UI->>Handler: PUT /api/v1/course<br/>(with JWT role=ADMIN, body: {id, rec_status})
+            Handler->>Handler: Parse & validate body (id required)
+            Handler->>UseCase: courseUseCase.UpdateCourseRecStatus(id, rec_status)
+            UseCase->>Repo: courseRepo.UpdateCourseRecStatus(id, rec_status)
+            Repo->>DB: UPDATE courses SET rec_status = ? WHERE id = ?
+            DB-->>Repo: Updated
+            Repo-->>UseCase: Success
+            UseCase-->>Handler: Success
+            Handler-->>UI: Return 204 No Content
+            UI-->>Admin: อัพเดทสถานะรายวิชาใน UI
+        else แก้ไขรายละเอียดรายวิชาตาม ID
+            UI->>Handler: PUT /api/v1/course/update/{courseId}<br/>(with JWT role=ADMIN, JSON body)
+            Handler->>Handler: Parse request body (UpdateCourseRequest)
+            Handler->>UseCase: courseUseCase.UpdateCourseById(courseId, req)
+            UseCase->>Repo: courseRepo.GetCourseById(courseId)
+            Repo->>DB: SELECT * FROM courses WHERE id = ?
+            DB-->>Repo: Return Course
+            Repo-->>UseCase: Course
+            UseCase->>UseCase: Apply provided fields + build professors list (if provided)
+            UseCase->>Repo: courseRepo.UpdateCourseById(courseId, updatedCourse)
+            Repo->>DB: BEGIN
+            Repo->>DB: UPDATE courses SET ... WHERE id = ?
+            opt professor_ids provided
+                Repo->>DB: REPLACE course_professors association
+            end
+            Repo->>DB: COMMIT
+            DB-->>Repo: Updated
+            Repo-->>UseCase: Success
+            UseCase-->>Handler: Success
+            Handler-->>UI: Return 204 No Content
+            UI-->>Admin: แสดงผลการบันทึกสำเร็จ
+        end
     end
 ```
 
@@ -518,49 +541,5 @@ participant DB as ฐานข้อมูล (Database)
         UseCase-->>Handler: Return BulkCreateCoursesResponse<br/>(success_count, failed_count, failed_rows)
         Handler-->>UI: Return JSON (200 OK)
         UI-->>Admin: แสดงสรุปผลการนำเข้า
-    end
-```
-
----
-
-## 16. Admin Course Flow - Update Course By ID
-**หน้าบ้าน:** Admin Course Edit Page
-
-```mermaid
-sequenceDiagram
-autonumber
-actor Admin as ผู้ดูแลระบบ (Admin)
-participant UI as หน้าเว็บไซต์ (Frontend)
-participant Handler as CourseHandler
-participant UseCase as CourseUseCase
-participant Repo as CourseRepository
-participant DB as ฐานข้อมูล (Database)
-
-    Admin->>UI: แก้ไขข้อมูลรายวิชาและกดบันทึก
-    UI->>Handler: PUT /api/v1/course/update/{courseId}<br/>(with JWT role=ADMIN, JSON body)
-    Handler->>Handler: Validate role == ADMIN
-    alt ไม่ใช่ ADMIN
-        Handler-->>UI: Return 403 Forbidden
-        UI-->>Admin: แจ้งเตือนไม่มีสิทธิ์เข้าถึง
-    else เป็น ADMIN
-        Handler->>Handler: Parse request body (UpdateCourseRequest)
-        Handler->>UseCase: courseUseCase.UpdateCourseById(courseId, req)
-        UseCase->>Repo: courseRepo.GetCourseById(courseId)
-        Repo->>DB: SELECT * FROM courses WHERE id = ?
-        DB-->>Repo: Return Course
-        Repo-->>UseCase: Course
-        UseCase->>UseCase: Apply provided fields + build professors list (if provided)
-        UseCase->>Repo: courseRepo.UpdateCourseById(courseId, updatedCourse)
-        Repo->>DB: BEGIN
-        Repo->>DB: UPDATE courses SET ... WHERE id = ?
-        opt professor_ids provided
-            Repo->>DB: REPLACE course_professors association
-        end
-        Repo->>DB: COMMIT
-        DB-->>Repo: Updated
-        Repo-->>UseCase: Success
-        UseCase-->>Handler: Success
-        Handler-->>UI: Return 204 No Content
-        UI-->>Admin: แสดงผลการบันทึกสำเร็จ
     end
 ```
