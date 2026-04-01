@@ -282,3 +282,97 @@
 | **1a. ไม่ใช่ Admin** | ระบบแสดง Error "Forbidden" (403) |
 | **1b. ไม่พบ Report** | ระบบแสดง Error "Report not found" (404) |
 | **3a. ไม่พบ Review ที่จะลบ** | ระบบแสดง Error "Review not found" (404) |
+
+---
+
+## 12. ปรับสถานะแนะนำรายวิชา (Admin)
+
+| **Usecase ID** | UC-012 |
+|----------------|---------|
+| **Usecase Name** | ปรับสถานะแนะนำรายวิชา (เปิด/ปิดการแสดงผล) |
+| **Actor** | ผู้ดูแลระบบ (Admin) |
+| **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- มี JWT Token ที่ถูกต้อง |
+| **Post-Condition** | - ค่า `rec_status` ของรายวิชาถูกอัพเดทตามที่กำหนด |
+
+| **Normal Flow** | |
+|-----------------|---|
+| **Actor** | **System** |
+| 1. Admin เลือกรายวิชาที่ต้องการปรับสถานะ | |
+| 2. Admin กดเปิด/ปิดสถานะแนะนำ | |
+| | 3. Frontend เรียก `PUT /api/v1/course` พร้อม body `{ id, rec_status }` |
+| | 4. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
+| | 5. ระบบ parse และ validate request body (ต้องมี `id`) |
+| | 6. ระบบอัพเดทสถานะรายวิชา<br>`courseUseCase.UpdateCourseRecStatus(id, recStatus)`<br>`courseRepo.UpdateCourseRecStatus(id, recStatus)`<br>`UPDATE courses SET rec_status = ? WHERE id = ?` |
+| | 7. ระบบตอบกลับสำเร็จ (No Content) |
+| 8. UI อัพเดทสถานะรายวิชา | |
+
+| **Alternative Flow** | |
+|---------------------|---|
+| **4a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
+| **5a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
+| **5b. ไม่ส่ง `id`** | ระบบตอบกลับ Bad Request (400) |
+
+---
+
+## 13. นำเข้ารายวิชา (CSV) แบบกลุ่ม (Admin)
+
+| **Usecase ID** | UC-013 |
+|----------------|---------|
+| **Usecase Name** | นำเข้ารายวิชาแบบกลุ่มผ่านไฟล์ CSV |
+| **Actor** | ผู้ดูแลระบบ (Admin) |
+| **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- มีไฟล์ CSV ที่ format ถูกต้อง (มี header และอย่างน้อย 8 คอลัมน์) |
+| **Post-Condition** | - รายวิชาใหม่ถูกสร้างในฐานข้อมูล (เฉพาะแถวที่ข้อมูลถูกต้อง)<br>- ความสัมพันธ์กับอาจารย์ถูกผูกให้กับรายวิชา (ตาม professor IDs ในไฟล์)<br>- ระบบส่งผลลัพธ์เป็นจำนวนสำเร็จ/ล้มเหลวและเลขแถวที่ล้มเหลว |
+
+| **Normal Flow** | |
+|-----------------|---|
+| **Actor** | **System** |
+| 1. Admin ไปที่หน้าจอนำเข้ารายวิชา | |
+| 2. Admin อัปโหลดไฟล์ CSV | |
+| | 3. Frontend เรียก `POST /api/v1/course/import` แบบ `multipart/form-data` (field `file`) |
+| | 4. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
+| | 5. ระบบอ่านไฟล์ CSV และแปลงเป็น rows[][]string |
+| | 6. ระบบรวบรวม professor IDs ทั้งหมดจากคอลัมน์อาจารย์ และตรวจสอบว่ามีอยู่จริง<br>`profRepo.GetExistingProfessorIDs(allProfIDs)` |
+| | 7. ระบบไล่ทีละแถวเพื่อสร้าง course model และ validate ข้อมูล (เช่น credit ต้องเป็นตัวเลข) |
+| | 8. ถ้าแถวใดมี professor ID ที่ไม่มีอยู่จริง ระบบจะข้ามแถวนั้นและบันทึกเลขแถวเป็น failed |
+| | 9. ระบบ bulk create รายวิชาที่ผ่านการตรวจสอบ พร้อมผูกความสัมพันธ์อาจารย์<br>`courseRepo.BulkCreateCourses(courses)` |
+| | 10. ระบบตอบกลับผลลัพธ์ `{ success_count, failed_count, failed_rows }` |
+| 11. UI แสดงสรุปผลการนำเข้า | |
+
+| **Alternative Flow** | |
+|---------------------|---|
+| **4a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
+| **3a. ไม่ส่งไฟล์ `file`** | ระบบตอบกลับ Bad Request (400) และข้อความ "file is required" |
+| **5a. ไฟล์อ่านไม่ได้/CSV parse ไม่ได้** | ระบบตอบกลับ Error |
+| **7a. แถวข้อมูลคอลัมน์ไม่พอ หรือ credit ไม่ใช่ตัวเลข** | ระบบตอบกลับ Error |
+
+---
+
+## 14. แก้ไขข้อมูลรายวิชาตาม ID (Admin)
+
+| **Usecase ID** | UC-014 |
+|----------------|---------|
+| **Usecase Name** | แก้ไขข้อมูลรายวิชา (แก้เฉพาะ field ที่ส่งมา) |
+| **Actor** | ผู้ดูแลระบบ (Admin) |
+| **Pre-Condition** | - ผู้ใช้ Login ด้วย Role = ADMIN<br>- ระบุ `courseId` ใน path parameter ได้ถูกต้อง |
+| **Post-Condition** | - ข้อมูลรายวิชาถูกอัพเดทตาม field ที่ส่งมา (name/description/semester/code/credit/course_type)<br>- หากส่ง `professor_ids` ระบบจะ replace ความสัมพันธ์อาจารย์ของรายวิชานั้น |
+
+| **Normal Flow** | |
+|-----------------|---|
+| **Actor** | **System** |
+| 1. Admin เปิดหน้าจอแก้ไขรายวิชา | |
+| 2. Admin แก้ไขข้อมูลและกดบันทึก | |
+| | 3. Frontend เรียก `PUT /api/v1/course/update/{courseId}` พร้อม JSON body (field เป็น optional) |
+| | 4. ระบบตรวจสอบสิทธิ์ว่าเป็น ADMIN (จาก JWT) |
+| | 5. ระบบ parse request body เป็น `UpdateCourseRequest` |
+| | 6. ระบบอ่านข้อมูลรายวิชาเดิมจากฐานข้อมูล<br>`courseRepo.GetCourseById(courseId)` |
+| | 7. ระบบ apply เฉพาะ field ที่ถูกส่งมา และเตรียมข้อมูล professors ตาม `professor_ids` (ถ้ามี) |
+| | 8. ระบบอัพเดทข้อมูลใน transaction และ replace association ของ professors (ถ้าส่งมา)<br>`courseRepo.UpdateCourseById(courseId, updatedCourse)` |
+| | 9. ระบบตอบกลับสำเร็จ (No Content) |
+| 10. UI แสดงผลการบันทึกสำเร็จ | |
+
+| **Alternative Flow** | |
+|---------------------|---|
+| **4a. ไม่ใช่ Admin** | ระบบตอบกลับ Forbidden (403) |
+| **5a. body ไม่ถูกต้อง / parse ไม่ได้** | ระบบตอบกลับ Bad Request (400) |
+| **3a. ไม่ระบุ courseId ใน path** | ระบบตอบกลับ Bad Request (400) |
+| **6a. ไม่พบรายวิชา/อ่านข้อมูลไม่ได้** | ระบบตอบกลับ Error |

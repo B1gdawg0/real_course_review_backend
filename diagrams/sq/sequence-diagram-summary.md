@@ -40,3 +40,12 @@
 
 ## 13. Admin Flow - Manage Report (Solve/Reject)
 เมื่อแอดมินกด “Solve” หรือ “Reject” สำหรับรายงานหนึ่งรายการ Frontend เรียก `PATCH /api/v1/report/{reportId}/{action}` ไปที่ `ReportHandler` และตรวจสิทธิ์ admin จากนั้น `ReportUseCase` จะดึงข้อมูล report ผ่าน `ReportRepository` แล้วแตกแขนงตาม action: ถ้า solve จะอัปเดตสถานะรายงานเป็น SOLVED และสั่ง `ReviewRepository` ลบรีวิวที่ถูกรายงาน แต่ถ้า reject จะอัปเดตสถานะเป็น REJECTED อย่างเดียว สุดท้ายตอบกลับ success เพื่อให้ Frontend อัปเดตสถานะบนหน้าจอ.
+
+## 14. Admin Course Flow - Update Course Recommendation Status
+แอดมินปรับสถานะแนะนำรายวิชาโดยเรียก `PUT /api/v1/course` พร้อม JWT role=ADMIN และ body `{ id, rec_status }` ไปที่ `CourseHandler` ซึ่งตรวจสิทธิ์ก่อน จากนั้น `CourseUseCase` จะสั่ง `CourseRepository` อัปเดตค่า `rec_status` ของรายวิชาในตาราง courses แล้วตอบกลับแบบ No Content เพื่อให้ Frontend อัปเดตสถานะการแสดงผลของรายวิชา.
+
+## 15. Admin Course Flow - Import Courses (CSV)
+แอดมินอัปโหลดไฟล์ CSV ผ่าน `POST /api/v1/course/import` (multipart/form-data field `file`) ไปที่ `CourseHandler` หลังตรวจสิทธิ์ admin แล้ว `CourseUseCase` จะอ่านและ parse CSV, รวบรวม professor IDs เพื่อเช็คว่ามีอยู่จริงผ่าน `ProfessorRepository` จากนั้นสร้างรายการ courses ที่ valid และเรียก `CourseRepository` ทำ bulk create พร้อมผูกความสัมพันธ์อาจารย์ในฐานข้อมูล สุดท้ายตอบกลับเป็นผลสรุป `{ success_count, failed_count, failed_rows }` ให้ UI แสดงผลการนำเข้า.
+
+## 16. Admin Course Flow - Update Course By ID
+แอดมินแก้ไขรายละเอียดรายวิชาผ่าน `PUT /api/v1/course/update/{courseId}` โดย `CourseHandler` ตรวจสิทธิ์ admin และ parse request body จากนั้น `CourseUseCase` จะโหลดข้อมูลรายวิชาเดิมผ่าน `CourseRepository`, apply เฉพาะ field ที่ส่งมา และถ้ามี `professor_ids` จะ replace ความสัมพันธ์อาจารย์ ก่อนสั่ง `CourseRepository` อัปเดตใน transaction แล้วตอบกลับแบบ No Content เพื่อให้ Frontend แสดงผลบันทึกสำเร็จ.
