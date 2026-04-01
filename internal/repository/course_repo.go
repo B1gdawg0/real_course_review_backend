@@ -160,5 +160,23 @@ func (c *courseRepo) BulkCreateCourses(courses []m.Course) error {
 }
 
 func (c *courseRepo) UpdateCourseById(id string, updatedCourse *m.Course) error {
-   return c.db.Where("id = ?", id).Model(&m.Course{}).Updates(updatedCourse).Error
+    return c.db.Transaction(func(tx *gorm.DB) error {
+
+        if err := tx.Model(&m.Course{}).
+            Where("id = ?", id).
+            Omit("ID", "Professors").
+            Updates(updatedCourse).Error; err != nil {
+            return err
+        }
+
+        if updatedCourse.Professors != nil {
+            if err := tx.Model(&m.Course{ID: id}).
+                Association("Professors").
+                Replace(updatedCourse.Professors); err != nil {
+                return err
+            }
+        }
+
+        return nil
+    })
 }

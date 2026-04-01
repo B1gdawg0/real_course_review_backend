@@ -431,5 +431,12 @@ func (c *courseUseCase) UpdateCourseById(id string, updatedCourse *dtos.UpdateCo
 		course.CourseType = *updatedCourse.CourseType
 	}
 
+	if updatedCourse.Professors != nil {
+		course.Professors = make([]model.Professor, len(*updatedCourse.Professors))
+		for i, id := range *updatedCourse.Professors {
+			course.Professors[i] = model.Professor{ID: id}
+		}
+	}
+
 	return c.repo.UpdateCourseById(id, course)
 }

@@ -63,4 +63,5 @@ type UpdateCourseRequest struct {
 	Code        *string  `json:"code,omitempty"`
 	Credit      *int     `json:"credit,omitempty"`
 	CourseType  *string  `json:"course_type,omitempty"`
+	Professors  *[]string `json:"professor_ids,omitempty"`
 }
