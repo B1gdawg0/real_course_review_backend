@@ -104,18 +104,22 @@ participant Handler as CourseHandler
 participant UseCase as CourseUseCase
 participant Repo as CourseRepository
 participant DB as ฐานข้อมูล (Database)
+participant n8n as n8n Workflow
 
     User->>UI: คลิกที่วิชาเพื่อดูรายละเอียด
     UI->>Handler: GET /api/v1/course?id={courseId}<br/>(with JWT Token)
     Handler->>UseCase: courseUseCase.GetCourseById(id)
     UseCase->>Repo: courseRepo.GetCourseById(id)
-    Repo->>DB: SELECT * FROM courses<br/>WHERE id = ?<br/>PRELOAD professors, tags
-    DB-->>Repo: Return Course Entity
+    Repo->>DB: SELECT * FROM courses<br/>WHERE id = ?<br/>PRELOAD professors, tags, reviews
+    DB-->>Repo: Return Course Entity with Reviews
     Repo-->>UseCase: Return Course
     UseCase->>UseCase: Calculate Rate & Review Count
-    UseCase-->>Handler: Return CourseFullResponse
+    UseCase-->>Handler: Return CourseFullResponse (with all reviews)
     Handler-->>UI: Return JSON (200 OK)
-    UI-->>User: แสดงรายละเอียดวิชา (ชื่อ, รายละเอียด, อาจารย์, Rate, Tags)
+    UI->>n8n: POST /webhook/summarize-reviews<br/>(reviews)
+    n8n->>n8n: สรุปรีวิวทั้งหมด
+    n8n-->>UI: Return Review Summary
+    UI-->>User: แสดงรายละเอียดวิชา, สรุปรีวิว, และรีวิวทั้งหมด
 ```
 
 ---
@@ -394,4 +398,47 @@ participant DB as ฐานข้อมูล (Database)
         Handler-->>UI: Return JSON (200 OK)
         UI-->>Admin: แสดงรายการรายงานทั้งหมด
     end
+```
+
+---
+
+## 13. Admin Flow - Manage Report (Solve/Reject)
+**หน้าบ้าน:** Admin Report Management Page
+
+```mermaid
+sequenceDiagram
+autonumber
+actor Admin as ผู้ดูแลระบบ (Admin)
+participant UI as หน้าเว็บไซต์ (Frontend)
+participant Handler as ReportHandler
+participant UseCase as ReportUseCase
+participant ReportRepo as ReportRepository
+participant ReviewRepo as ReviewRepository
+participant DB as ฐานข้อมูล (Database)
+
+    Admin->>UI: กดปุ่ม "Solve" หรือ "Reject" ที่รายงาน
+    UI->>Handler: PATCH /api/v1/report/{reportId}/{action}<br/>(action: "solve" or "reject")<br/>(with JWT role=ADMIN)
+    Handler->>Handler: Validate role == ADMIN
+    Handler->>UseCase: reportUseCase.ManageReport(reportId, action)
+    UseCase->>ReportRepo: reportRepo.GetReportById(reportId)
+    ReportRepo->>DB: SELECT * FROM reports WHERE id = ?
+    DB-->>ReportRepo: Return Report
+    ReportRepo-->>UseCase: Return Report (with reviewId)
+
+    alt action is "solve"
+        UseCase->>ReportRepo: reportRepo.UpdateReportStatus(reportId, "SOLVED")
+        ReportRepo->>DB: UPDATE reports SET status = 'SOLVED' WHERE id = ?
+        DB-->>ReportRepo: Status Updated
+        UseCase->>ReviewRepo: reviewRepo.DeleteReview(reviewId)
+        ReviewRepo->>DB: DELETE FROM reviews WHERE id = ?
+        DB-->>ReviewRepo: Review Deleted
+    else action is "reject"
+        UseCase->>ReportRepo: reportRepo.UpdateReportStatus(reportId, "REJECTED")
+        ReportRepo->>DB: UPDATE reports SET status = 'REJECTED' WHERE id = ?
+        DB-->>ReportRepo: Status Updated
+    end
+
+    UseCase-->>Handler: Return Success
+    Handler-->>UI: Return JSON (200 OK)
+    UI-->>Admin: อัพเดทสถานะรายงานใน UI
 ```
