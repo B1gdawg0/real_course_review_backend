@@ -13,4 +13,5 @@ type CourseUseCase interface {
 	GetAISummaryWithN8N(firstCourseId, secondCourseId string) (*dtos.CourseAISummaryResponse, error)
 	UpdateCourseRecStatus(id string, recStatus bool) error
 	BulkCreateCourses(rows [][]string) (*dtos.BulkCreateCoursesResponse, error)
+	UpdateCourseById(id string, updatedCourse *dtos.UpdateCourseRequest) error
 }

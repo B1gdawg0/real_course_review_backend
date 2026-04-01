@@ -72,6 +72,7 @@ func RegisterRoutesV1(app *fiber.App, db *gorm.DB, cfg *m.Config) {
 
 	course.Put("", courseHDL.UpdateCourseRecStatus)
 	course.Post("/import", courseHDL.ImportCourses)
+	course.Put("/update/:id", courseHDL.UpdateCourseById)
 
 	vote.Post("", voteHDL.Vote)
 

@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/B1gdawg0/real_course_review_backend/internal/dtos"
+	m "github.com/B1gdawg0/real_course_review_backend/internal/model"
 	repo "github.com/B1gdawg0/real_course_review_backend/internal/repository"
 	"github.com/B1gdawg0/real_course_review_backend/internal/utils"
 )
@@ -83,6 +84,20 @@ func (r *reportUseCase) SolveReport(id string, reviewID string, action string, r
 	if err != nil {
 		return err
 	}
+
+	reviewTagMap := make(map[string]struct{})
+	for _, t := range review.Tags {
+		reviewTagMap[t.ID] = struct{}{}
+	}
+
+	filtered := []m.Tag{}
+	for _, tag := range course.Tags {
+		if _, exists := reviewTagMap[tag.ID]; !exists {
+			filtered = append(filtered, tag)
+		}
+	}
+
+	course.Tags = filtered
 
 	if err := r.courseUseCase.UpdateCourse(course); err != nil {
 		return err

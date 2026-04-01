@@ -158,3 +158,7 @@ func (c *courseRepo) BulkCreateCourses(courses []m.Course) error {
 
 	return tx.Commit().Error
 }
+
+func (c *courseRepo) UpdateCourseById(id string, updatedCourse *m.Course) error {
+   return c.db.Where("id = ?", id).Model(&m.Course{}).Updates(updatedCourse).Error
+}

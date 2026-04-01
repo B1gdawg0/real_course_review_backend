@@ -55,3 +55,12 @@ type BulkCreateCoursesResponse struct {
 	FailedCount  int      `json:"failed_count"`
 	FailedRows   []int    `json:"failed_rows"`
 }
+
+type UpdateCourseRequest struct {
+	Name        *string  `json:"name,omitempty"`
+	Description *string  `json:"description,omitempty"`
+	Semester    *string  `json:"semester,omitempty"`
+	Code        *string  `json:"code,omitempty"`
+	Credit      *int     `json:"credit,omitempty"`
+	CourseType  *string  `json:"course_type,omitempty"`
+}

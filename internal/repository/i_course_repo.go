@@ -12,4 +12,5 @@ type CourseRepository interface {
 	UpdateCourseRecStatus(id string, recStatus bool) error
 	UpdateCourse(course *m.Course) error
     BulkCreateCourses(courses []m.Course) error
+	UpdateCourseById(id string, updatedCourse *m.Course) error
 }

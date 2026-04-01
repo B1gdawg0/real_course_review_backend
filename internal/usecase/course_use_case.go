@@ -405,3 +405,31 @@ func (c *courseUseCase) BulkCreateCourses(rows [][]string) (*dtos.BulkCreateCour
 
 	return &response, nil
 }
+
+func (c *courseUseCase) UpdateCourseById(id string, updatedCourse *dtos.UpdateCourseRequest) error {
+	course, err := c.repo.GetCourseById(id)
+	if err != nil {
+		return err
+	}
+
+	if updatedCourse.Name != nil {
+		course.Name = *updatedCourse.Name
+	}
+	if updatedCourse.Description != nil {
+		course.Description = *updatedCourse.Description
+	}
+	if updatedCourse.Semester != nil {
+		course.Semester = *updatedCourse.Semester
+	}
+	if updatedCourse.Code != nil {
+		course.Code = *updatedCourse.Code
+	}
+	if updatedCourse.Credit != nil {
+		course.Credit = *updatedCourse.Credit
+	}
+	if updatedCourse.CourseType != nil {
+		course.CourseType = *updatedCourse.CourseType
+	}
+
+	return c.repo.UpdateCourseById(id, course)
+}

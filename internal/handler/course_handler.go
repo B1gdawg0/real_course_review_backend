@@ -146,3 +146,23 @@ func (ch *CourseHandler) ImportCourses(c *fiber.Ctx) error {
 
 	return dtos.Respond(c, res, err)
 }
+
+func (ch *CourseHandler) UpdateCourseById(c *fiber.Ctx) error {
+	role, _ := c.Locals("role").(string)
+	if role != "ADMIN" {
+		return fiber.NewError(fiber.StatusForbidden, "only admins can update course recommendation status")
+	}
+
+	var req dtos.UpdateCourseRequest
+	if err := c.BodyParser(&req); err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "invalid request body")
+	}
+
+	id := c.Params("id")
+	if id == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "course ID is required")
+	}
+
+	err := ch.cc.UpdateCourseById(id, &req)
+	return dtos.RespondNoContent(c, err)
+}
